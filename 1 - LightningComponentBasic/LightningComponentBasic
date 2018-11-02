@@ -1,0 +1,442 @@
+
+Lightning Component :
+..................................................................................................................................................
+:Lightning Component :
+...................................................................................................................................................
+component is smallest reusable part.
+component is use to build single page app.
+component's ui Build on BootStarp.
+component based on oops concept.
+component can have another component/s.
+component can extend another component.
+component can implements multiple interaface.
+salesforce provided component have aura,ui,lightning,force namespace.
+component have clientside controller to handle action.
+Event use to communicate between components.
+Aura:Attribute use to hold data .
+ServerSide controller added to component to interact with Database,send email,Apex Callouts.with controller="apexclass"
+Every Component have a body attribute of Aura.Component[] type from <aura:component/>
+component defination and instance.
+
+smallest reusable part of application.
+contains ui,lightning,html component.
+supports oops concept.
+framework based on bootstrap.
+helps in building single page applicaton.
+component can hold another component/s.(composition)
+inheritance to override parent component values.
+event is the way to commnicate between components.
+	.component event communicate between composite component.
+	.application event to communicate between unrelated component.
+
+Component Naming :
+
+Markup : 
+
+.cmp extension.
+<aura:component>
+
+</aura:component>
+
+Namespace :
+
+default : c
+<c:componentname/>
+<c:componentname attributeone="valueone" attributetwo="value2"/>
+
+Component Id :
+
+Global ID:
+Every component is being assign an unique id automatically during runtime.Which never stay constant so we cannot use it for refering an element in
+Component.
+{!globalId}
+let gId = cmp.getLocalId();
+
+Local Id :
+aura:id attribute use to assign value which can be later acces inside js using find(auraid).
+multiple component inside of a component can have same or unique aura:id.
+when no such component with aura id present in component then it will return undefined.
+
+function(cmp,evt,helper){
+	let eles = cmp.find(auraid);
+	if(Array.isArray(eles)){
+		console.log('Group Of Element Found');
+	}else if(typeof eles === 'object'){
+		console.log('Unique Element Found');
+	}else{
+		console.log('No Such Element with id '+auraid+ ' present.');
+	}
+}
+
+
+
+Html Tag are being treated as first class component .
+
+Navigation :
+
+PageReference in ServerSide code gone work fine but when its comes to anchor tag naviagtion,URL hacks like /id,/id/e,JS Naviagtion not gone work always accordling in Lightning.
+
+navigateToSobject : navigate to particular objects detailpage,chatter,related records
+let navAction = $A.get('e.force:navigateToSobject');
+navAction.setParams({
+	"recordId" : {!v.recordId},
+	"isredirect":true,
+	"slideDevName" : 'detail'
+});
+navAction.fire();
+
+navigateToUrl : 
+
+let navToUrl = $A.get('e.force:navigateToUrl');
+navToUrl.setParams({
+	"url" : "/006/0"
+});
+navToUrl.fire();
+
+<a onclick="{!c.navigate}">Save</a>
+
+
+
+CSS In Component :
+
+styleClass(aura,lightning components),class attribute for html tags.
+	Apply Style Inside CSS File
+	htmltagName{ cssproperty }
+	.class/styleclass { cssproperty }
+style.(Inline Style)
+
+apex:standardStyleSheet --- In ServerSide
+
+<ltng:require 
+	styles="{!join(",",$Resource.Style'+/style1.css',$Resource.Style'+/style2.css')}"
+	scripts="$Resource.Style"+'/jsLib.js'
+	/>
+
+
+Component Attribute :
+
+Holds Data and Pass it among Components.
+Attribute must have unique name,type must be declare.
+
+Naming Convention ?
+
+MarkUp:
+<aura:attribute name="" type="" optional(default="" required="" access="" description="")/>
+
+type :
+
+Basic Type : 
+Boolean,Date,DateTime,Decimal,Double,Integer,Long,String
+
+Function Type :
+Only Used In Client Side.
+<aura:attribute name="callback" type="Function"/>
+
+Object Type : type="object"
+
+Standard and Cutome Type : type="Account/Custom__c"
+
+Collection Type:
+
+Array : type="string[]" default="['sunday','monday']"
+List  : type="List" default="['red', 'green', 'blue']"
+Set   : type="Set" default="['red', 'red', 'blue']"
+Map   : type="Map" default="{ one: 'label1', two: 'label2' }"
+
+iterate above types
+<aura:attribute name="colors" type="Set" default="['red', 'red', 'blue']"/>
+<aura:iteration var="color" items="{!v.colors}">
+    {!color}<br/>
+</aura:iteration>
+
+iterating map directly not possible .
+
+
+var myMap = {a:'one',b:'two'};
+var newMap = {};
+for(var key in myMap){
+	newMap.push({key: key, value: myMap[key]});
+}
+component.set("v.indexcolors", newMap);
+component.set("v.showBool", true);
+
+
+<aura:attribute name="showBool" type="Boolean" default="false"/>
+<aura:If isTrue="{!v.showBool}">
+    <aura:iteration items="{!v.indexcolors}" var="dcrRecord" indexVar="key">
+        {!dcrRecord.key} - {!dcrRecord.value}<br/>
+    </aura:iteration>
+</aura:If>
+
+Custom Apex Class :
+type="namespace.classname"
+type="namespace.classname[]"
+
+
+FrameworkSpecific Value :
+
+type="Aura.Action" : parent pass js hanler to child (function passing)
+<!--sub.cmp-->
+<apex:component >
+	<aura:attribute name="onclick" type="Aura.Action"/>
+	<lightning:button label="clk" onclick="{!c.onclick}"/>
+</apex:component>
+
+<!--super.cmp-->
+<apex:component >
+	<c:sub onclick="{!c.hadleClick}"/>
+</apex:component >
+super.js
+hadleClick : function(cmp,evt,helper){
+	
+}
+
+type="Aura.Component[]" :
+
+Component Composition :
+
+Component Defination and Instance .
+Component can hold other component/s for one or more than one time.
+<!--displaymsg-->
+<aura:component>
+	<aura:attribute name="msg" type="string"/>
+</aura:component>
+
+<aura:component>
+	<c:displaymsg msg="Good Morning"/>
+	<c:displaymsg msg="Good Evening"/>
+</aura:component>
+
+
+Component Body:
+
+Each component have an attribute while they are created call body of type Aura.Component[].
+
+<aura:set attributes="body">
+	<!-- to set body of an component -->
+</aura:set>
+
+Component Facets :
+
+facet is any attribute of type Aura.Component[]
+<aura:attribute name="header" type="Aura.Component[]"/>
+
+<aura:set attribute="header">
+	<h1>My Header </h1>
+</aura:set>
+
+*** simply setting attribute of parent
+parent.cmp
+extensible="true"
+<aura:attribute name="name" type="string" default="ram"/>
+child.cmp
+extends="c:parent"
+<aura:set attribute="name" value="dam"/>
+
+***simply setting attribute of child
+child.cmp
+<aura:attribute name="name" type="string" default="ram"/>
+parnet.cmp
+<c:child>
+	<aura:attribute name="myname" type="string" default="dam"/>
+	<aura:set attribute="name" value="{!c.myname}"/>
+</c:child>
+<c:child name="{!c.myname}"/>
+
+Controller Access :
+
+attribute : private,public,global private attribute can not be refer from outside of resource.
+application,component,interface,event : public,global
+
+Oops Concept :
+
+Encapsulation : 
+	components are encapsulated and their internals stay private
+	can access the public shape(attributes and registered events) of the component, but can't access other implementation details in the component bundle.
+
+
+Inheritance :
+Inheritance   :
+	extensible="true",extends="c:super"
+	Extends:
+	component extends another component can set attribute value by using aura:set.
+	inheits parent event can be handle by both but their is no granty of order.
+	helper code inheited and can be override by sub component.
+	component in sub component can directly use super component by onclick="{!c.handleClick}"
+
+1. (To override parent)
+parent.cmp extensible="true"
+child.cmp : extends="namespce.parent"
+
+when a child component inherit parent component then it inherits all the attribute of parent component which can be set using aura:set .
+
+<aura:set attribute="">
+	<!--Content-->
+</aura:set>
+
+<aura:set attribute="" value="" />
+
+Child Component Can handle all the event register in parent.
+Child Component Inherit from Helper Object of Parent.Can override helper method using same helpermethodname.
+
+what ever component gone add in child component being treated as appended parent body component.
+Polymorphism  : Refer Composition.
+
+2.Composition(Resuablity)
+	.A component can contain one or multiple component for once or multiple time.
+	
+Abstract Component : Practical implementation
+
+abstract="true"
+
+Interfaces : 100 percent abstract
+
+aura:attribute,aura:registerEvent,aura:method as part of it.
+
+
+component can extends only one component and implements multiple interface.(, separator)
+an inteface can extends multiple interface.
+application can extend one application at most.
+
+<aura:method name="methodFromInterface">
+	<aura:attribute name="stringAttribute" type="String" default="default string"/>
+</aura:method>
+
+
+Marker Interface : force:appHostable these interface does not have any attribute,method,registerEvent.
+
+Best Practice :
+
+Conditionally Create Elements with <aura:if>
+<aura:if isTrue="{!v.error}">
+	<aura:set attributes="else">
+		<h1>valid </h1>
+	</aura:set>
+</aura:if>
+
+Toggle Visibility Using Css :
+.hide{
+	display : none;
+}
+$A.util.toggleClass(cmp,'hide');
+
+
+Dynamically Create Component :
+
+$A.createComponent(String type,Object attributes,function callback);
+
+$A.createComponent('',{},function(newcomponent,status,errorMsg){
+	if (status === "SUCCESS") {
+
+	}else if (status === "INCOMPLETE") {
+		console.log('offline');
+	}else if (status === "ERROR") {
+		console.log('error message : '+errorMsg);
+	}
+});
+
+$A.createComponents([
+	    ["ui:message",{
+	        "title" : "Sample Thrown Error",
+	        "severity" : "error",
+	    }],
+	    ["ui:outputText",{
+	        "value" : e.message
+	    }]
+    ],
+    function(components, status, errorMessage){
+        if (status === "SUCCESS") {
+            var message = components[0];
+            var outputText = components[1];
+            // set the body of the ui:message to be the ui:outputText
+            message.set("v.body", outputText);
+        }else if (status === "INCOMPLETE") {
+            console.log("No response from server or client is offline.")
+            // Show offline error
+        }else if (status === "ERROR") {
+            console.log("Error: " + errorMessage);
+            // Show error message
+        }
+    }
+);
+
+Version is an object present in Lighting Component.
+
+
+Using Expressions :
+
+{!}
+
+{!condition ? truestatement : falsestatement}
+
+
+DataBinding Between Component :
+
+! -- bidirectional,pass by reference,bounded
+# -- unidirectional,pass by value,unbounded
+
+
+
+Value Provider :
+
+c: controller.
+v: attribute.
+
+<lightning:button label="Liked It" action="{!c.handleClick}"/>
+
+//event.target / event.getSource().get('v.id');
+
+handleClick : fucntion(cmp,evt,helper){
+	let btn_Click = evt.getSource().getElement();
+	if(btn_Click.get('v.label') === 'Liked It'){
+		btn_Click.set('v.label','Unlike');
+	}else{
+		btn_Click.set('v.label','Liked It');
+	}
+}
+
+Global Value Provider :
+
+Lightning does not support global value providers.
+
+
+Custom Label :
+
+{!$label.namespace.labelname}
+$A.get("$label.namespace.labelname");
+System.Label.labelname;
+
+dynamic custom label:
+let day = getDay();
+let exp_label = $A.getReference("$Label.namespace.labelname"+day);
+
+
+Localization :
+
+ui:outputDateTime timezone="Europe/Berlin"
+lightning:formattedDateTime timeZone="Europe/Berlin"
+
+ui:outputCurrency	format,currencyCode,currencySymbol
+
+js : $A.get("$Locale.currency")
+
+
+Event Handling in Base Component :
+
+<lightning:button label="{!Label.projectname_pagename_new}" name="{!label.projectname_pagename_btnname}" action="{!c.handleClick}"/>
+<lightning:button label="{!Label.projectname_pagename_edit}" name="{!label.projectname_pagename_btnname}" action="{!c.handleClick}"/>
+<lightning:button label="{!Label.projectname_pagename_cancel}" name="{!label.projectname_pagename_btnname}" action="{!c.handleClick}"/>
+
+
+handleClick : funciton(cmp,evt,helper){
+	
+	let btnname = evt.getSource().get('v.name');
+	if(btnname === projectname_pagename_new){
+		helper.createRecord();
+	}else if(btnname === projectname_pagename_edit){
+		helper.editRecord();
+	}else{
+		helper.cancel();
+	}
+
+}

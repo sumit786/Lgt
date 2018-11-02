@@ -1,0 +1,46 @@
+
+Trailhead : 
+Apex Developer Console :
+
+Workspace :
+
+Multiple Workspace. create workspace for different project and switch between multiple workspace.
+
+File>Open> ctrl+o
+Ctrl+Shif+A :Lightning Component search
+ctrl+H : Search Class
+Ctrl+SHift+o : object and related field info.
+Ctrl+E : anonymous window.
+
+Cretae,edit Lightning Component,Application,Event,Token Create Apex class,visualforce page,trigger,visualforce component
+Debug,Test Code .
+Logs avaiablity.
+
+Log Inspector :
+
+Debug | View Log Panels :
+
+Stack Tree :  if one class calls a second class, the second class is shown as the child of the first.
+Execution Stack : log entry, followed by the operation that called it.
+Execution Log : Displays every action that occurred during the execution of your code
+Source : Displays the contents of the source file
+Execution Overview : execution time and heap size
+
+Debug | Switch Perspectives or Debug | Perspective Manager
+
+Log Levels
+NONE
+ERROR
+WARN
+INFO
+DEBUG
+FINE
+FINER
+FINEST
+
+Prospect Manger for own view of execution log.
+
+
+just by clicking on right side can create an checkpoint.
+then execute code
+on the button click on checkpoint tab then 

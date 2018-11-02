@@ -1,0 +1,198 @@
+Lightning Tab 		:implements="force:appHostable"
+Lightning HomePage  :implements="flexipage:availableForAllPageTypes" access="global"
+Lightning RecordPage:implements="flexipage:availableForRecordHome,force:hasRecordId" access="global"
+Lgt CommunityPage   :implements="forcecommunity:availableForAllPageTypes" access="global"
+Lgt QuickAction     :implements="force:lightningQuickAction" 
+Lgt StandardActionOverride : implements="lightning:actionOverride"
+Lgt App Dependency  :extends="ltng:outApp"
+..................................................................................................................................................
+:Component :
+...................................................................................................................................................
+component is smallest reusable part.
+component is use to build single page app.
+component's ui Build on BootStarp.
+component based on oops concept.
+component can have another component/s.
+component can extend another component.
+component can implements multiple interaface.
+salesforce provided component have aura,ui,lightning,force namespace.
+component have clientside controller to handle action.
+Event use to communicate between components.
+Aura:Attribute use to hold data .
+ServerSide controller added to component to interact with Database,send email,Apex Callouts.with controller="apexclass"
+Every Component have a body attribute of Aura.Component[] type from <aura:component/>
+component defination and instance.
+<!--demoCmp-->
+<aura:component>
+	<div>
+		
+	</div>
+</aura:component>
+
+<c:demoCmp/>
+
+
+Identifying Component :
+
+aura:id = "cmpId"
+
+let inCmp = component.find('cmpId');
+
+
+Navigation :
+
+PageReference ok
+js naviagtion need to be refactor.
+href="{c.handleNav}"
+
+$A.get('e.force:naviagteToSobject')
+$A.get('e.force:navigateToURL')
+
+handleNav : function(component,event,helper){
+	
+}
+...
+
+
+type="Aura.Action" can hold controller action.can be use to pass parent controller method to child controller.
+
+<aura:attribute type="Aura.Action" name="handleClick" />
+<lightning:button label="save" onclick="{!c.handleClick}"/>
+
+
+<c:child handleClick="{c.handleClick}"/>
+
+Component.set() can not be use on Aura.Action types.
+$A.enqueueAction()
+Not Recommened instead register event on component and fire it on child.Handle the event in parent component.
+Instead use
+<aura:register name="clickevent" type="c:clickevent"/>
+<lightning:button label="save" onclick="{!c.fireEvent}"/>
+fireEvent : function(component,event,helper){
+	let cllickevent = $A.getEvent('clickevent');
+	cllickevent.setParams({});
+	cllickevent.fire();
+}
+
+parent 
+<aura:handler name="clickevent" action="c.handleClick"/>
+
+handleClick :function(cmp,evt,helper){
+	
+}
+
+..................................................................................................................................................
+:   OOPS CONCEPT   :
+..................................................................................................................................................
+
+child can set value of inheited attribute by using <aura:set>
+
+<aura:set attribute="attributename" value=""/>
+<aura:set attribute="attributename">
+	
+</aura:set>
+
+
+IN JS
+
+component.get('v.body');
+
+
+
+OOPS :
+
+Encapsulation : 
+	components are encapsulated and their internals stay private
+	can access the public shape(attributes and registered events) of the component, but can't access other implementation details in the component bundle.
+
+Inheritance   :
+	extensible="true",extends="c:super"
+	Extends:
+	component extends another component can set attribute value by using aura:set.
+	inheits parent event can be handle by both but their is no granty of order.
+	helper code inheited and can be override by sub component.
+	component in sub component can directly use super component by onclick="{!c.handleClick}"
+
+Polymorphism  : Refer Composition.
+..................................................................................................................................................
+:   Composition    :
+..................................................................................................................................................
+Break Large Component in to small pieces and refer it from One Component.
+
+Each time a component refer an instance of it being created means each new instance have a controller object and same helper object.
+Helper object like static property or util class which act like a single copy for all instance.
+Differenct instance of component holds different value.
+
+
+event.target / event.getSource().get('v.id');
+
+//value of selectedMenu item
+
+event.deatil. instead event.getParam("id");
+
+
+Lightning Design File :
+
+design resource to control which attributes are exposed to builder
+
+<design:component label="componentname">
+	<design:attribute name="attname" label="aliasname"/>
+</design:component>
+
+In community page label name will gone display.
+
+
+Component Event Propagation :
+
+event fire.
+capture phase all handler in phase="capture" execute in  root to source.
+bubble phase all handler in default/phase="bubble" execute in source to root.
+
+flow can be stop by using stopPropagating().
+create an event 
+<!--cmpevent-->
+<aura:event type="COMPONENT">
+	<aura:attribute name="message" type="String"/>
+</aura:event>
+
+
+register an event 
+
+<aura:registerEvent name="cmpevt" type="c:cmpevent"/>
+
+event.setParam("message","adef3458990123QRF");
+event.getParam("message");
+
+
+fire an event :
+
+let cmpEvent = component.getEvent('cmpevent');
+cmpEvent.setParam("message","Good Morning");
+cmpEvent.fire();
+
+Handle Event
+
+<aura:handler name="" event="" action="" phase=""/>
+
+name must be same as register name.
+event must be define if its in a parent unregister component.
+by default phase is bubble can set to capture.
+
+a component handle its own event.
+parent can handle child event by its own or by passing it to child component.
+<c:childcmp ceevent="{!c.handleceevent}"/>
+.
+event propagates to every owner in the containment hierarchy.
+every parent in the containment hierarchy can’t handle an event during the capture and bubble phases. 
+
+<!--c:owner-->
+<aura:component>
+    <c:container>
+        <c:eventSource />
+    </c:container>
+</aura:component>
+
+eventSource fire event can be handle by eventSource and owner not by container even if it have the handler .
+includeFacets="true" make container eligiable to handle event propagated by eventSource.
+
+

@@ -1,0 +1,50 @@
+Build Flexible Apps with Lightning Components :
+
+<!--HelloWorld-->
+
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId">
+    <aura:attribute name="greeting" type="String" default="World" access="private" description="Hold Message to Display"/>
+    
+    <div class="slds-card">
+        <div class="slds-card__body slds-card__body_inner slds-p-top_medium">Hello {!v.greeting}</div>
+        <input class="slds-input slds-m-top_small" aura:id="myInput" type="text" />
+        <button class="slds-button slds-button_brand" name="Update" type="submit" onclick="{!c.updateValue}">Update</button>
+    </div>
+</aura:component>
+
+updateValue : function(component,event,helper){
+	var val = component.find("myInput").getElement().value;
+	component.set("v.greeting", val);
+}
+
+add component to a page
+
+setting > Edit Page > Custom Component > add HelloWorld .
+
+Go to https://www.lightningdesignsystem.com
+
+<!--Display a enter text on Lightning-->
+
+<aura:component>
+	<aura:attribute name="name" type="string" default="" description="holds value for name field" />
+	<div class="slds-card">
+        <div class="slds-card__body slds-card__body_inner slds-p-top_medium">
+			<lightning:input label="name" type="text" value="{!v.name}" />
+		</div>
+    </div>
+</aura:component>
+
+
+
+Home > GOAL EDIT TO 100,000.
+
+RollUp Lightning Experience for Sales Team:
+
+
+Filter Criteria : choose selective record/records on the basis of Criteria.
+Click on Locked check on filterpane to amke it uneditable on report run page.
+
+Opportunities by Stage > Summarize > Sum and Average.
+
+ 
+

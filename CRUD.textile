@@ -1,0 +1,70 @@
+
+/*Specific Object Permission*/
+public static Boolean checkObjectAccessibility(string objName){
+	//Object Level Permission
+	if(Schema.getGlobalDescribe().containsKey(objName) ){
+		return Schema.getGlobalDescribe().get(objName).isAccessible();
+	}else{
+		throw new NoSuchObjectPresent('NO SUCH OBJECT WITH API NAME '+objName+' Present');
+	}
+}
+
+/* Specific Field Access Permission Checking*/
+public static Boolean checkObjectAccessibility(string objName,string FieldName){
+	//Field Level Permission
+	if(Schema.getGlobalDescribe().containsKey(objName) && Schema.getGlobalDescribe().get(objName).isAccessible()){
+
+		Map<string,SObjectField> contactFields = Schema.getGlobalDescribe().get('contact').getDescribe().fields.getMap();
+	    //specific Field Permission
+	    if(contactFields.containsKey(fieldName)){
+	    	return contactFields.get(fieldName).getDescribe().isAccessible()
+	    }else{
+	    	throw new NoSuchFieldException('No Such Field name '+fieldName+' Exist in Object '+objName);
+	    }
+	}else{
+		throw new NoSuchObjectPresent('NO SUCH OBJECT WITH API NAME '+objName+' Present');
+	}
+}
+
+public class FieldInfo{
+	public Boolean isExist;
+	public Boolean isAccessible;
+	public string fieldName;
+}
+/* Specific Fields Access Permission Checking*/
+public static Map<string,List<FieldInfo>> checkObjectAccessibility(string objName,List<string> Fields){
+	//Field Level Permission
+	if(Schema.getGlobalDescribe().containsKey(objName) && Schema.getGlobalDescribe().get(objName).isAccessible()){
+
+		Map<string,SObjectField> contactFields = Schema.getGlobalDescribe().get('contact').getDescribe().fields.getMap();
+		Map<string,List<FieldInfo>> fieldsInfos = new Map<String,List<FieldInfo>>();
+	    //specific Field Permission
+	    for (string field : Fields){
+	    	if(contactFields.containsKey(field)){
+		        if(contactFields.get(field).getDescribe().isAccessible()){
+		        	if(fieldsInfos.containsKey('Exist')){
+		            	fieldsInfos.get('Exist').add(new FieldInfo(isExist=true,isAccessible=true,fieldName=field));    
+		            }else{
+		            	fieldsInfos.put('Exist',new FieldInfo(isExist=true,isAccessible=true,fieldName=field);    
+		            }
+		        }else{
+		    		if(fieldsInfos.containsKey('Exist')){
+		            	fieldsInfos.get('Exist').add(new FieldInfo(isExist=true,isAccessible=false,fieldName=field));    
+		            }else{
+		            	fieldsInfos.put('Exist',new FieldInfo(isExist=true,isAccessible=false,fieldName=field);    
+		            }
+		    	}
+		    }else{
+		    	if(fieldsInfos.containsKey('noneExist')){
+		    		fieldsInfos.get(field).add(new FieldInfo(isExist=false,isAccessible=false,fieldName=field));
+		    	}else{
+		    		fieldsInfos.put('noneExist',new FieldInfo(isExist=false,isAccessible=false,fieldName=field));
+		    	}
+		    }
+	    }
+	    return fieldsInfos;
+	}else{
+		throw new NoSuchObjectPresent('NO SUCH OBJECT WITH API NAME '+objName+' Present');
+	}
+}
+

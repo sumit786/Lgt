@@ -1,0 +1,209 @@
+Design Resources 
+
+<design:component label="">
+	<design:attribute name="" label="" description=""/>
+	<design:attribute name="" label="" description=""/>
+	<sfdc:objects>
+		<sfdc:object>Custom__c</sfdc:object>
+	</sfdc:objects>
+</design:component>
+
+Component as 
+
+Lightning Tab 		:implements="force:appHostable"
+Lightning HomePage  :implements="flexipage:availableForAllPageTypes" access="global"
+Lightning RecordPage:implements="flexipage:availableForRecordHome,force:hasRecordId" access="global"
+Lgt CommunityPage   :implements="forcecommunity:availableForAllPageTypes" access="global"
+Lgt QuickAction     :implements="force:lightningQuickAction" 
+Lgt StandardActionOverride : implements="lightning:actionOverride"
+Lgt App Dependency  :extends="ltng:outApp"
+
+Tab :
+	implements="force:appHostable"
+	tabs>lightning tab>create
+	AppLauncher > Tabname > click
+
+Custom Actions :
+	implements="force:lightningQuickAction" ---> object specific or global action
+	implements="force:hasRecordId"
+
+Override Button :
+	implements="lightning:actionOverride"
+	objectmanager > objectname > Buttons, Links, and Actions > Edit  > choose Lightning component with actionOverride
+
+Navigation :
+
+pageReference : avoid broken navigation if Salesforce changes URL formats in the future.
+Migrate to lightning:isUrlAddressable from force:navigateToComponent
+
+<ui:outputURL value="https://my/path" label="Contact ID" />
+
+<div aura:id="container">
+	<p><lightning:formattedUrl value="https://my/path" label="Contact ID" tooltip="Go to Contact's recordId" /></p>
+</div>
+
+.Navigation Does not support in community,lightning component for visualforce page,Lightning Out.
+
+1. lightning:navigation
+	<aura:attribute name="pageReference" type="Object"/>
+	<aura:handler name="init" value="{! this }" action="{! c.init }"/>
+	<lightning:navigation aura:id="navService"/>
+	<a href="{!v.url}">Link</a>
+	 init : function(cmp, event, helper) {
+	 	var navService = cmp.find("navService");
+	    // Sets the route to /lightning/o/Account/home
+	    var pageReference = {
+	        type: 'standard__objectPage',
+	        attributes: {
+	            objectApiName: 'Account',
+	            actionName: 'home'
+	        }
+	    };
+	    cmp.set("v.pageReference", pageReference);
+	    var defaultUrl = "#";
+	    navService.generateUrl(pageReference)
+	        .then($A.getCallback(function(url) {
+	            cmp.set("v.url", url ? url : defaultUrl);
+	        }), $A.getCallback(function(error) {
+	            cmp.set("v.url", defaultUrl);
+	        }));
+	}
+
+2. lightning:isUrlAddressable
+	
+ can not read setparam of undefined
+
+1. Make Target Component implements implements="lightning:isUrlAddressable"
+2. Make Source Component have 
+   <lightning:navigation aura:id="navService"/>
+   <lightning:button label="Navigate" onclick="{!c.handleClick}"/>
+
+   handleClick : funciton(component,event,helper){
+   		var navService = component.find("navService");
+   		var pageReference = {
+   			type : 'standard__component',
+   			attributes :  {
+   				componentName: 'c_componentname'
+   			},
+   			state : {
+   				attributename : 'value',
+   				attributename : 'value'...
+   			}
+   		};
+   		event.preventDefault();
+   		navService.navigate(pageReference);
+   }
+
+//pageReference 
+Lightning Component Type
+
+//URL FORMAT  : /cmp/{componentName}?myAttr=attrValue
+
+var pageReference = {    
+    "type": "standard__component",
+    "attributes": {
+        "componentName": "c__MyLightningComponent"    
+    },    
+    "state": {
+        "myAttr": "attrValue"    
+    }
+};
+
+Knoweldge Article :
+//URL FORMAT :/articles/{articleType}/{urlName}
+var pageReference = {    
+    "type": "standard__knowledgeArticlePage",
+    "attributes": {
+        "articleType": "Briefings",
+        "urlName": "February-2017"
+    }
+}
+
+Named Page Type:
+
+var pageReference = {    
+    "type": "standard__namedPage",
+    "attributes": {
+        "pageName": "home"    
+    }
+};
+
+Navigation Item Page Type
+//CustomTab. Visualforce tabs, Web tabs, Lightning Pages, and Lightning Component tabs are supported.
+
+var pageReference = {    
+    "type": "standard__navItemPage",
+    "attributes": {
+        "apiName": "MyCustomTabName"    
+    }
+};
+
+Object Page Type
+
+var pageReference = {    
+    "type": "standard__objectPage",
+    "attributes": {
+        "objectApiName": "Case",
+        "actionName": "home"
+    }
+};
+
+var pageReference = {
+    type: "standard__objectPage",
+    attributes: {
+        objectApiName: "Account",
+        actionName: "list"
+    },
+    state: {
+        filterName: "Recent"
+    }
+};
+
+Record Page Type
+
+var pageReference = {    
+       "type": "standard__recordPage",
+       "attributes": {
+           "recordId": "001xx000003DGg0AAG",
+           "objectApiName": "PersonAccount",
+           "actionName": "view"
+       }
+};
+
+Record Relationship Page Type
+
+var PageReference = {    
+    "type": "standard__recordRelationshipPage",
+    "attributes": {
+        "recordId": "500xx000000Ykt4AAC",
+        "objectApiName": "Case",
+        "relationshipApiName": "CaseComments",
+        "actionName": "view"
+    }
+};
+ URL FORMAT : /r/{objectApiName}/{recordId}/related/{relationshipApiName}/{actionName}
+/r/{recordId}/related/{relationshipApiName}/{actionName}
+
+Migrate from ui:outputUrl to lightning:formattedUrl 
+
+<ui:outputURL value="https://my/path" label="Contact ID" />
+
+<div aura:id="container">
+    <p><lightning:formattedUrl value="https://my/path" label="Contact ID" tooltip="Go to Contact's recordId" /></p>
+</div>
+
+Toast Message :
+
+let toastAction = $A.get("e.force:showToast");
+toastAction.setParams({
+	"title" : "Quick Add : "+num1+"+"+num2;
+	"message" : "The total is "+(num1+num2)+".";
+	"duration" : 1000
+});
+toastAction.fire();
+
+//close action panel
+let dismissAction = $A.get('e.force:closeQuickAction');
+dismissAction.fire();
+
+pattern="^(1?(-?\d{3})-?)?(\d{3})(-?\d{4})$" messageWhenPatternMismatch="The phone number must contain 7, 10, or 11 digits. Hyphens are optional."

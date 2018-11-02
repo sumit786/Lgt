@@ -1,0 +1,93 @@
+Lightning Events:
+
+Events use for Communication in lightning.
+
+<aura:Event type="Component">
+
+</aura:Event>
+
+Component Events:
+
+Fire By a component.
+Handle by component fire the event or event in the hierachy.
+
+Action vs Event :
+
+Any UserInteraction is an action which may or may not cause an event.
+Browser Event handle by js.
+
+ex: click can be handle in js directly.
+	or and can fire an event which interact with parent data.
+
+
+User click a button > js controller invoke > call helper methods > make a call to serverside apex code > callback gone handle in clientside controller > UI updated.
+
+
+Component Event Propagation 
+1.
+	JS code fire event.
+2. Capture Phase
+	Root hanlder ---> source handler execute 
+3.Bubble phase
+	Source Handler --> Root Handler execute (default phase)
+
+stopPrapagation() event can stop further execution on handlers.
+
+Create an Component Event 
+
+<aura:component type="component">
+	<aura:attribute name="message" type="string"/>
+</aura:component>
+
+Register and Fire an event
+
+<aura:registerEvent name="sampleComponentEvent" type="c:compEvent"/>
+
+var compEvent = cmp.getEvent("sampleComponentEvent");
+compEvent.setParams({"myParam" : myValue });
+compEvent.fire();
+
+Handling Event 
+
+<aura:handler name="sampleComponentEvent" event="c:compEvent" action="{!c.handleComponentEvent}"/>
+<aura:handler name="sampleComponentEvent" event="ns:eventName" action="{!c.handleComponentEvent}" phase="capture" />
+
+
+child can register an event and handle it.
+parent can handle child event.
+parent can pass event handler for child.
+
+<c:cmp eventname="{!c.handleClick}"/>
+
+EveryParent Component may not handle the component event fired by default includeFacets="true" make all parent component eligible to handle event.
+
+<!--c:owner-->
+<aura:component>
+    <c:container>
+        <c:eventSource />
+    </c:container>
+</aura:component>
+
+eventSource fired event can be handle by eventSource and owner butnot by container component.
+if container handler have includeFacets="true" then it can handle event.
+
+
+Dynamically adding an event to a component.
+addEventHandler(String event, Function handler, String phase, String includeFacets)
+cmp.addEventListner("registerComponentEventName",cmp.getReference("c.handleEvent"));
+cmp.addEventListner("registerComponentEventName",function(){console.log("Handled the component event");});
+handleEvent : function(cmp,evt,helper){
+	console.log('Handle Component Event');
+}
+
+
+Best Practice :
+
+.Use Component Event whenever possible.
+.Action Based On State.
+.Reusable code in helper.
+.onclick and ontouchend Events invokes onclick.
+.Donot fire event on render.
+
+
+
