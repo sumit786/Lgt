@@ -1,5 +1,6 @@
 Design Resources 
 
+//design resource to control which attributes are exposed to builder tools like the Lightning App Builder, Community Builder, or Cloud Flow Designer
 <design:component label="">
 	<design:attribute name="" label="" description=""/>
 	<design:attribute name="" label="" description=""/>
@@ -7,6 +8,9 @@ Design Resources
 		<sfdc:object>Custom__c</sfdc:object>
 	</sfdc:objects>
 </design:component>
+
+<sfdc:object> and <sfdc:objects> aren’t supported in Community Builder or the Cloud Flow Designer. They’re also ignored when setting a component to use as an object-specific action or to override a standard action.
+
 
 Component as 
 
@@ -17,7 +21,7 @@ Lgt CommunityPage   :implements="forcecommunity:availableForAllPageTypes" access
 Lgt QuickAction     :implements="force:lightningQuickAction" 
 Lgt StandardActionOverride : implements="lightning:actionOverride"
 Lgt App Dependency  :extends="ltng:outApp"
-
+	
 Tab :
 	implements="force:appHostable"
 	tabs>lightning tab>create
@@ -26,6 +30,43 @@ Tab :
 Custom Actions :
 	implements="force:lightningQuickAction" ---> object specific or global action
 	implements="force:hasRecordId"
+	<!--quickAdd.cmp-->
+<aura:component implements="force:lightningQuickAction">
+
+    <!-- Very simple addition -->
+
+    <lightning:input type="number" name="myNumber" aura:id="num1" label="Number 1"/> +
+    <lightning:input type="number" name="myNumber" aura:id="num2" label="Number 2"/>
+
+    <br/>
+    <lightning:button label="Add" onclick="{!c.clickAdd}"/>
+
+</aura:component>
+/*quickAddController.js*/
+({
+    clickAdd: function(component, event, helper) {
+
+        // Get the values from the form
+        var n1 = component.find("num1").get("v.value");
+        var n2 = component.find("num2").get("v.value");
+
+        // Display the total in a "toast" status message
+        var resultsToast = $A.get("e.force:showToast");
+        resultsToast.setParams({
+            "title": "Quick Add: " + n1 + " + " + n2,
+            "message": "The total is: " + (n1 + n2) + "."
+        });
+        resultsToast.fire();
+
+        // Close the action panel
+        var dismissActionPanel = $A.get("e.force:closeQuickAction");
+        dismissActionPanel.fire();
+    }
+
+})
+
+ObjectManager > ObjectApiName > Actions > new > Choose Lightning Component > Select the Lightning  Component
+Pagelayout > Salesforce Mobile and Lightning Experience Actions > add quick action in it .
 
 Override Button :
 	implements="lightning:actionOverride"
@@ -140,6 +181,9 @@ var pageReference = {
 
 Object Page Type
 
+/o/{objectApiName}/{actionName}
+/o/{objectApiName}/{actionName}?filterName=Recent
+
 var pageReference = {    
     "type": "standard__objectPage",
     "attributes": {
@@ -160,6 +204,11 @@ var pageReference = {
 };
 
 Record Page Type
+
+/r/{objectApiName}/{recordId}/{actionName}
+/r/{recordId}/{actionName}
+
+/r/Contact/0037F00000wFnGFQA0
 
 var pageReference = {    
        "type": "standard__recordPage",
@@ -188,6 +237,7 @@ Migrate from ui:outputUrl to lightning:formattedUrl
 
 <ui:outputURL value="https://my/path" label="Contact ID" />
 
+value="/lightning/r/Contact/0037F00000wFnGFQA0/view"
 <div aura:id="container">
     <p><lightning:formattedUrl value="https://my/path" label="Contact ID" tooltip="Go to Contact's recordId" /></p>
 </div>

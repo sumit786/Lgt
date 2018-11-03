@@ -1,7 +1,31 @@
 Lightning Events:
 
 Events use for Communication in lightning.
+.
 
+Attribute Accessment in Lightning :
+
+v.attributename gives attribute 
+//this may cause an error with popup message gone cause breaking in program
+let unprsentattribute = component.get('v.unknown');
+//element attribute
+let myCmp = component.find('auraid');
+//check before trying to access any attribute
+if(myCmp){
+	console.log('')
+}
+ex:
+<lightning:button label="TestAttribute" onclick="{!c.testAttribute}"/>
+testAttribute : ...{
+	let sourceEle = event.getSource();
+	console.log('sourceEle : '+sourceEle);
+	//returns TestAttribute
+	console.log('sourceEle label: '+sourceEle.get('v.label'));
+	//if attribute does not mansion then returns undefined
+	console.log('sourceEle name: '+sourceEle.get('v.name'));
+	//as component does not support unknown attribute so its gone break the code
+	console.log('sourceEle unknown: '+sourceEle.get('v.unknown'));
+}
 <aura:Event type="Component">
 
 </aura:Event>
@@ -9,11 +33,16 @@ Events use for Communication in lightning.
 Component Events:
 
 Fire By a component.
-Handle by component fire the event or event in the hierachy.
+Handle by component fire the event or component in the hierachy.
 
 Action vs Event :
 
-Any UserInteraction is an action which may or may not cause an event.
+Any UserInteraction is an action which cause an event.
+Event can be fire with out userInteraction.
+
+example:
+<aura:handler value="{!this}" name="init" action="{!c.doInit}"/>
+
 Browser Event handle by js.
 
 ex: click can be handle in js directly.
