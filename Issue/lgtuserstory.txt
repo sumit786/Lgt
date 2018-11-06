@@ -1,0 +1,27 @@
+UserStory 1 :
+
+Issue :(Seralization )
+
+Object with respective field and value send to apex controller from helper javascript.
+Fields are being retrive from Metadata.
+Apex updating record and returning record value back.
+Then JS Reciving the record and redireting to record page.
+
+Issue : Certain Field value is not updating.
+
+From JS to sending object as a param to apex where field is not present.
+
+Metadata Custom Field __c is not added so when client-side sending data during seralization field being remove as its not matching respective field.
+
+Solution : 
+Debug Before Sending it to server site by using console.log.
+Enable Debug Mode For Current developer.Check Paramater value in server-side by using System.debug();
+Debug response value from server-side by using console.log.
+
+
+Issue 2:(fieldname Missmatch on client side)
+
+during page load handler invoking doInit method which making a call to server-side code to retrive records.Records not showing in lightning Component.
+
+CaseSensitive Issue.
+
