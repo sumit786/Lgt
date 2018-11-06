@@ -1,0 +1,61 @@
+Debugging In Lightning :
+1.
+Debug Mode : Enable to debug code during Lightning.
+It cause performance slow down so do not keep it enable only when need to debug then only for that user enable debug mode for that specific user and disable once complete.
+
+2.
+Disable Session Settings 's During Developement
+    .Enable secure and persistent browser caching to improve performance .
+
+Enable Enable Content Delivery Network (CDN) for Lightning Component framework under session settings.
+3.
+Lightning Extension for chrome.
+
+inspect element > drop down >> > lightning .
+
+
+tabs :
+
+Component Tree Tab  : component with their elements
+Performance Tab     : loading time of elements
+Transactions Tab    : time difference
+Event Log Tab       : all event fired.
+Actions Tab         : SERVER-SIDE  action executed details.
+Storage Tab         : storable actions.
+
+
+log message :
+debug js code
+console.log('...);
+inspect elemnet > console .. to view log
+
+Performance Issue :
+
+1. c:ifCleanUnrendered :
+<aura:handler name="init" value="{!this}" action="{c.doInit}/>
+<aura:attribute name="showSection" type="Boolean" default="false" />
+<aura:if isTrue="{!v.showSection}>
+
+</aura:if>
+
+doInit : function(component,event,helper){
+    component.set('v.showSection',true);
+}
+
+2. c:iterationMultipleItemsSet :
+
+<aura:attribute name="records" type="List"/>
+<!--create another attribute to hold default value-->
+<aura:attribute name="recordsDeafult" type="List" default="[ 'Eggs', 'Bacon', 'Bread' ]"/>
+
+doInit : function(component,event,helper){
+    let fetchdata = component.get('c.fetchData');
+    fetchdata.setCallback(this,function(response){
+        if(response.getState() === 'SUCCESS'){
+            component.set('v.records',response.getReturnValue());
+        }else{
+            component.set('v.records',component.set('v.recordsDeafult'));
+        }
+    });
+    component.set('v.showSection',true);
+}
