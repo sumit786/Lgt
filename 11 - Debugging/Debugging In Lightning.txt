@@ -28,6 +28,7 @@ log message :
 debug js code
 console.log('...);
 inspect elemnet > console .. to view log
+JSON.stringify(object)//to view [],{} content property properly.
 
 Performance Issue :
 

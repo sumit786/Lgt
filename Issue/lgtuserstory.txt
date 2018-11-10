@@ -25,3 +25,10 @@ during page load handler invoking doInit method which making a call to server-si
 
 CaseSensitive Issue.
 
+Issue 3 : evaluate mathmatical string expression.
+
+Instead of server-side code use client-side script with eval('expression'). replace it with
+
+new Function ('return ' + 'expression')();
+
+Issue 4 : 

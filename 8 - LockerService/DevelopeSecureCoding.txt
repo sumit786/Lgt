@@ -1,0 +1,45 @@
+/* Develope Secure Code */
+
+/*JavaScript ES5 Strict Mode Enforcement*/
+
+"use strict"
+    .must decalre type like var,let.const( (mistyped variable issue resolve)
+    .libraries must work under strict mode.
+    .explictly attach a variable in window.
+
+getElement();//cause an error 
+
+//valid dom access
+
+component.getElements();
+component.find();
+cmp.find("htmltagname").getElement();
+event.getSource().get("v.name")
+
+
+.proxy object ensures that a component only sees DOM elements created in the same namespce.
+.lockerservice does not allow dom access on lightning component as it is in c namespce and lightning component in lightning namespace.
+    //inavlid dom access
+    <lightning:button aura:id="btn_save" label="save" onclick="{!c.handleClick} />
+    component.find("btn_save").getElement();//error
+
+.not allowed to access proxy object as in js.
+
+.Replace global objects like window provide secure version like SecureWindow.
+    other objects too replace with secure wrapper version.
+    SecureAura($A),SecureComponent(Component),SecureComponentRef(SecureComponent),SecureDocument(document),SecureElement(Element),SecureObject(object),SecureWindow(window)
+
+
+    placing deugger inside js to replace code.
+    then in console check elements 
+    component
+    cmp.find("button1").get("v.label");
+
+    know component type
+    component+""
+
+Locker Service is disabled for IE11.Recommended not to use IE11.
+
+Activate Critical Update .
+    Enable Stricter Content Security Policy for Lightning Components.
+    Stricter CSP disallows the unsafe-inline for script-src

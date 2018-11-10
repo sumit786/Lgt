@@ -57,7 +57,7 @@ Component Event Propagation
 	JS code fire event.
 2. Capture Phase
 	Root hanlder ---> source handler execute 
-3.Bubble phase
+3. Bubble phase
 	Source Handler --> Root Handler execute (default phase)
 
 stopPrapagation() event can stop further execution on handlers.

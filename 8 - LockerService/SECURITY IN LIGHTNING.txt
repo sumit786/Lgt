@@ -1,0 +1,121 @@
+/*
+    SECURITY IN LIGHTNING
+*/
+
+Lightning Versus Visualforce
+
+Single Page App vs MultiPage App
+All Device Support vs Desktop Support.
+Resuable vs single Purpose.
+Component Based on Aura framework can not be manupulated outside aura.
+Visualforce Enforce CRUD (use model and with sharing/inherited) but Lightning does not.
+
+JS :
+
+run code in 'use strict'.
+safecode : function(component,event,helper){
+    'use strict' ;
+    var evalVal = new Function( 'return '+'(10/3*2+3/2*12/7)' )();
+}
+Salesforce’s content security policy disallows inline JavaScript and the JavaScript eval function in your code.
+    Restrict use of eval().
+    Restrict use of  inline JavaScript.
+    <a href="#" onclick="javascript:myFunction()">Click me</a>
+
+Anchor Tag :
+.validate id as it only content alphanumeric character.
+<a href="{!v.region.Common_Monster__c}">Common monster</a>
+binding with '/' can still redircet you to somewhere else then salesforce
+<a href="{!'/'+v.region.Common_Monster__c}">Common monster</a>
+
+<aura:attribute name="safeCommonMonster" type="string" />
+<a href="{!'/' + v.safeCommonMonster}">Common monster</a>
+validateId : function (component){
+    //JavaScript: we add a check for only alphanumeric and numeric values 
+    var alphaNum = /^[0-9a-zA-Z]+$/; 
+    var region = component.get('v.region');
+    if(region.Common_Monster__c.match(alphaNum)) { 
+        component.set('v.safeCommonMonster',results[0].Common_Monster__c); 
+    }
+} 
+
+<a href="{!c.redircetToObj}">Common monster</a>
+
+redircetToObj : function(component){
+    let isvalidId = helper.validateId();
+    if(isvalidId)
+        helper.redircetToObj();
+}
+
+validateId : function (component){
+    //JavaScript: we add a check for only alphanumeric and numeric values 
+    var alphaNum = /^[0-9a-zA-Z]+$/; 
+    var region = component.get('v.region');
+    if(region.Common_Monster__c.match(alphaNum)) { 
+        return true;
+    }
+    return false;
+} 
+redircetToObj : function(){
+
+    var redircetToObj  = $A.get('e.force:naviagateToObject');
+    if(redircetToObj){
+        redircetToObj.setParams({
+
+        });
+        redircetToObj.fire();
+    }
+}
+
+setTimeout,setInterval accessing the DOM with these functions places them in a context outside of the Lightning framework.There are no guarantees about the parent component’s state.the function may not have a parent component at all. If the state changes, the callback function can act on data that it doesn’t own, or wait for data that never shows up. If this happens, the app throws an error message that halts the entire Salesforce page, and the component stops responding. 
+
+
+soluion use :
+
+$A.getCallback() closure and cmp.isValid() inside of it.
+
+waitAndChange: function(cmp,evt,hlp){ 
+  setTimeout(function(){ 
+    $A.getCallback(function(){ // access the framework in a closure 
+      if(cmp.isValid()){ // does the component exist in this context? 
+        cmp.set("v.resultAttr","new value");
+      } 
+    }); 
+  },2000); 
+}
+
+Locker Disbale Inline JavaScript like below
+
+<a href="#" onclick="javascript:myFunction()">Click me</a>
+
+<a href="#" onclick="{!c.myFunction}">Click Me</a>
+define a method on the controller, and then pass that method in a Lightning expression to register your event handler.
+
+
+
+Secure Component Communication :
+
+Access Levels Attribute : global,public(only component in same namespace),private(only inside component)
+Access Levels Component : global,public
+
+
+No JS on render .
+
+Apply CRUD AND FLS ON @auraenabled method.
+
+@AuraEnabled
+public static List<objapiname> getobjnameName(Id objnameId) { 
+  List<objapiname> objnameDetails = new List<objapiname>(); 
+  // Check to see whether the caller has access to this information. 
+  if (!objapiname.SObjectType.getDescribe().isAccessible()) { 
+    return null; 
+  } 
+  if(objnameId != null || objnameId != 'undefined') { 
+    objnameDetails = [select Name from objapiname where Id =:objnameId]; 
+    return objnameDetails; 
+  } 
+  else { 
+    objnameDetails = null; 
+    return objnameDetails; 
+  } 
+}

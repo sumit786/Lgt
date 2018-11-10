@@ -17,6 +17,9 @@ Aura:Attribute use to hold data .
 ServerSide controller added to component to interact with Database,send email,Apex Callouts.with controller="apexclass"
 Every Component have a body attribute of Aura.Component[] type from <aura:component/>
 component defination and instance.
+apex for server side calls data transfered in JSON format.
+response design : as per system size view.
+Lightning Framwork build on free framework called aura.
 
 smallest reusable part of application.
 contains ui,lightning,html component.

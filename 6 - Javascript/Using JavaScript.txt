@@ -1,0 +1,241 @@
+/*Using JavaScript*/
+
+/*Invoking Actions on Component Initialization*/
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+doInit : function(Component,event,helper){
+
+}
+
+
+/*Sharing JavaScript Code in a Component Bundle*/
+
+helper.js
+
+
+/*Sharing js code across Components */
+
+static resource 
+
+filename : counter
+text/javascript
+
+//locker  service gone attach _counter to SecureWindow Object.
+window._counter = (function(){
+    var value = 0;
+    return {
+        increment : function(){
+            value += 1;
+            return value;
+        },
+        getValue : function(){
+            return value;
+        }
+    };
+});
+
+<ltng:require scripts="{!$Resource.counter}"  afterScriptsLoaded="{!c.getValue}"/>
+.orderly loading(FIFO)
+.one time loading(no duplicate,even if declare multiple time)
+.parallel loading(separate ltng:require scripts use to load different script)
+.encapuslation (only .cmp,.app can access these resource)
+
+getValue : function(Component,event,helper){
+    console.log('_counter'+_counter.getValue());
+}
+
+
+//Dynamically creating Component.
+
+tagname,property,callback
+//single Component
+$A.createComponent("",{},function callback(cmp,status,errorMessage){
+
+});
+
+//multiple Component
+$A.createComponents([["",{}],["",{}]...],{},function callback(cmp,status,errorMessage){
+
+});
+
+status === "SUCCESS","INCOMPLETE","ERROR"
+
+//Destory Component.
+
+
+destroy is not a function
+let ele = component.find(auraid).getElement();
+ele.destroy();//cause an error Action Failed : [divEle.destroy is not a function]
+
+solution : remove getElement().
+
+//Detecting DataChange 
+
+<lighting:select onchange="{!c.handleChange}>..
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+<aura:attribute name="age" type="string" />
+<aura:handler name="change" value="{!v.age}" action="{!c.handleChange}" />
+<div id="myDiv" aura:id="div1">
+    <p>See how Locker Service uses secure wrappers</p>
+</div>
+<div class="container">
+    {!v.age}
+</div>
+<lightning:button name="myButton" label="Peek in DOM" aura:id="button1" onclick="{!c.peekInDom}"/>
+
+peekInDom : function(cmp, event, helper) {
+    console.log("div1: ", cmp.find("div1").getElement());
+    
+    console.log("button1: ", cmp.find("button1"));
+    console.log("button name: ", event.getSource().get("v.name"));
+    // add debugger statement for inspection
+    // always remove this from production code
+    debugger;
+    let divEle = cmp.find("div1");
+    divEle.destroy();
+    cmp.set('v.age','26');
+},
+doInit : function(component,event,helper){
+        console.log('invoke init');
+        component.set('v.age','25');
+},
+handleChange : function(component,event,helper){
+    console.log('age chnaged');
+    console.log("old value: " + event.getParam("oldValue"));
+    console.log("current value: " + event.getParam("value"));
+}
+
+//finding component by id
+
+Assign a single or multiple elemnt in a component with same or different auraid to access it in javscript with auraid.aura:id="auraid"
+component.find("auraid");
+    .returns a single component.(unique element found)
+    .returns multiple component.(multiple element with same auraid)
+    .undefined(no such element present).
+
+
+//working with attribute vallue with javscript
+
+//attributename could be any aura:attribute or property as per component or element
+component.get('v.attributename');
+
+throws an exception
+ .if no such aura:attribute present.
+ .for component with no such property attribute.
+
+//deep set values of attributes.
+
+<aura:attribute name="user" type="Map"
+default="{
+'id': 99,
+'firstName': 'Eunice',
+'lastName': 'Gomez'}" />
+
+component.set("v.user.firstName", "Nina");
+
+
+//validate value is defined 
+!$A.util.isUndefined(cmp.get("v.label"));
+
+//check isEmpty
+$A.util.isEmpty(cmp.get("v.label"));
+
+//setting component body
+
+cmpEle.set('v.body',[]);
+
+push : add at top.
+pop  : remove top element.
+prepand : (add at first) unshift
+
+
+//fire an event 
+
+var cmpevt = component.getEvent('registername');
+cmpevt.setParams({});
+cmpevt.fire();
+
+var appevt = $A.get('e:c.appevt');
+appevt.fire();
+
+//get source element cause event
+var source = event.getSource();
+
+//get params
+    //single param value
+    var param = event.getParam('paramname');
+    //multiple params 
+    var params = event.getParams();
+//set params
+    cmpevt.setParam('name','value');
+    cmpevt.setParams({'name':'value',...});
+
+//capture phase
+    event.getPhase();
+
+//pause the event
+    event.pause();
+
+//resume the event
+    event.resume();
+
+//prevent default action on event 
+    event.preventDefault();
+
+//stop event propagation
+    event.stopPropagation();
+
+
+/*
+    Modify DOM 
+*/
+
+$A.util.addClass()/removeClass()/toggleClass();
+
+/*
+    React to component reRendering
+*/
+
+<aura:handler name="render" value="{!this}" action="{!c.handleRender}" />
+
+/*
+    Create custom render
+*/
+
+render();
+reRender();
+afterRender();
+unrender();
+
+Rerending LifeCycle :
+
+.init event.
+.render method.
+.afterRender method.
+.render event enable use to interact with ui.
+
+
+Browser event can trigger one or more lightning events.Each lightning event trigger one or more actions which can update data.which can fire more event.
+The rendering service tracks the stack of events that are fired.
+The framework rerenders all the components that own modified data by calling each component’s rerender() method.
+
+/* Invoke Function after script loaded succesfully */
+
+<ltng:require script="{!$Resource.script}" afterScriptsLoaded="{!c.loadScriptAction}" />
+
+Note :
+
+window.setTimeout(
+$A.getCallback(function() {
+cmp.set("v.visible", true);
+}),500)
+
+
+/*Handling Error */
+
+inputCmp.set("v.errors", [{message:"Input not a number: " + value}]);
+
+default error component, ui:inputDefaultError which dynamically created when being set.
+
