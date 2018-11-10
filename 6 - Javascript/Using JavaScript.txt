@@ -23,16 +23,16 @@ text/javascript
 
 //locker  service gone attach _counter to SecureWindow Object.
 window._counter = (function(){
-    var value = 0;
-    return {
-        increment : function(){
-            value += 1;
-            return value;
-        },
-        getValue : function(){
-            return value;
-        }
-    };
+var value = 0;
+return {
+    increment : function(){
+        value += 1;
+        return value;
+    },
+    getValue : function(){
+        return value;
+    }
+};
 });
 
 <ltng:require scripts="{!$Resource.counter}"  afterScriptsLoaded="{!c.getValue}"/>
@@ -42,7 +42,7 @@ window._counter = (function(){
 .encapuslation (only .cmp,.app can access these resource)
 
 getValue : function(Component,event,helper){
-    console.log('_counter'+_counter.getValue());
+console.log('_counter'+_counter.getValue());
 }
 
 
@@ -78,42 +78,42 @@ solution : remove getElement().
 <aura:attribute name="age" type="string" />
 <aura:handler name="change" value="{!v.age}" action="{!c.handleChange}" />
 <div id="myDiv" aura:id="div1">
-    <p>See how Locker Service uses secure wrappers</p>
+<p>See how Locker Service uses secure wrappers</p>
 </div>
 <div class="container">
-    {!v.age}
+{!v.age}
 </div>
 <lightning:button name="myButton" label="Peek in DOM" aura:id="button1" onclick="{!c.peekInDom}"/>
 
 peekInDom : function(cmp, event, helper) {
-    console.log("div1: ", cmp.find("div1").getElement());
-    
-    console.log("button1: ", cmp.find("button1"));
-    console.log("button name: ", event.getSource().get("v.name"));
-    // add debugger statement for inspection
-    // always remove this from production code
-    debugger;
-    let divEle = cmp.find("div1");
-    divEle.destroy();
-    cmp.set('v.age','26');
+console.log("div1: ", cmp.find("div1").getElement());
+
+console.log("button1: ", cmp.find("button1"));
+console.log("button name: ", event.getSource().get("v.name"));
+// add debugger statement for inspection
+// always remove this from production code
+debugger;
+let divEle = cmp.find("div1");
+divEle.destroy();
+cmp.set('v.age','26');
 },
 doInit : function(component,event,helper){
-        console.log('invoke init');
-        component.set('v.age','25');
+    console.log('invoke init');
+    component.set('v.age','25');
 },
 handleChange : function(component,event,helper){
-    console.log('age chnaged');
-    console.log("old value: " + event.getParam("oldValue"));
-    console.log("current value: " + event.getParam("value"));
+console.log('age chnaged');
+console.log("old value: " + event.getParam("oldValue"));
+console.log("current value: " + event.getParam("value"));
 }
 
 //finding component by id
 
 Assign a single or multiple elemnt in a component with same or different auraid to access it in javscript with auraid.aura:id="auraid"
 component.find("auraid");
-    .returns a single component.(unique element found)
-    .returns multiple component.(multiple element with same auraid)
-    .undefined(no such element present).
+.returns a single component.(unique element found)
+.returns multiple component.(multiple element with same auraid)
+.undefined(no such element present).
 
 
 //working with attribute vallue with javscript
@@ -122,8 +122,8 @@ component.find("auraid");
 component.get('v.attributename');
 
 throws an exception
- .if no such aura:attribute present.
- .for component with no such property attribute.
+.if no such aura:attribute present.
+.for component with no such property attribute.
 
 //deep set values of attributes.
 
@@ -164,44 +164,44 @@ appevt.fire();
 var source = event.getSource();
 
 //get params
-    //single param value
-    var param = event.getParam('paramname');
-    //multiple params 
-    var params = event.getParams();
+//single param value
+var param = event.getParam('paramname');
+//multiple params 
+var params = event.getParams();
 //set params
-    cmpevt.setParam('name','value');
-    cmpevt.setParams({'name':'value',...});
+cmpevt.setParam('name','value');
+cmpevt.setParams({'name':'value',...});
 
 //capture phase
-    event.getPhase();
+event.getPhase();
 
 //pause the event
-    event.pause();
+event.pause();
 
 //resume the event
-    event.resume();
+event.resume();
 
 //prevent default action on event 
-    event.preventDefault();
+event.preventDefault();
 
 //stop event propagation
-    event.stopPropagation();
+event.stopPropagation();
 
 
 /*
-    Modify DOM 
+Modify DOM 
 */
 
 $A.util.addClass()/removeClass()/toggleClass();
 
 /*
-    React to component reRendering
+React to component reRendering
 */
 
 <aura:handler name="render" value="{!this}" action="{!c.handleRender}" />
 
 /*
-    Create custom render
+Create custom render
 */
 
 render();
@@ -237,5 +237,70 @@ cmp.set("v.visible", true);
 
 inputCmp.set("v.errors", [{message:"Input not a number: " + value}]);
 
-default error component, ui:inputDefaultError which dynamically created when being set.
+default error component, ui:inputDefaultError which dynamically created when being set.(lightning component donot have the feature.)
 
+Enter a number: <ui:inputNumber aura:id="inputCmp" onError="{!c.handleError}"
+onClearErrors="{!c.handleClearError}"/> <br/>
+<ui:button label="Submit" press="{!c.doAction}"/>
+
+doAction : function(component, event) {
+var inputCmp = component.find("inputCmp");
+var value = inputCmp.get("v.value");
+// is input numeric?
+if (isNaN(value)) {
+    inputCmp.set("v.errors", [{message:"Input not a number: " + value}]);
+} else {
+    inputCmp.set("v.errors", null);
+}
+},
+handleError: function(component, event){
+/* do any custom error handling
+* logic desired here */
+// get v.errors, which is an Object[]
+var errorsArr = event.getParam("errors");
+for (var i = 0; i < errorsArr.length; i++) {
+console.log("error " + i + ": " + JSON.stringify(errorsArr[i]));
+}
+},
+handleClearError: function(component, event) {
+/* do any custom error handling
+* logic desired here */
+}
+
+
+/*
+Recoverable Error
+*/
+
+var hasPerm = false;
+try {
+    if (!hasPerm) {
+        throw new Error("You don't have permission to edit this record.");
+    }
+}
+catch (e) {
+    $A.createComponents([["ui:message",{
+                                    "title" : "Sample Thrown Error",
+                                    "severity" : "error",
+                                }],
+                         ["ui:outputText",{"value" : e.message}]
+],
+function(components, status, errorMessage){
+if (status === "SUCCESS") {
+    var message = components[0];
+    var outputText = components[1];
+    // set the body of the ui:message to be the ui:outputText
+    message.set("v.body", outputText);
+    var div1 = cmp.find("div1");
+    // Replace div body with the dynamic component
+    div1.set("v.body", message);
+    }else if (status === "INCOMPLETE") {
+        console.log("No response from server or client is offline.")
+        // Show offline error
+    }else if (status === "ERROR") {
+            console.log("Error: " + errorMessage);
+            // Show error message
+        }
+    }
+);
+}
