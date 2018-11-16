@@ -1,0 +1,50 @@
+winter 19
+
+visualpage
+
+1.Select Id ,ProfileId, MetricsDate ,LogDate from VisualforceAccessMetrics
+
+2.Third Party Image :
+
+<img src={!IMAGEPROXYURL("http://exampledomain.com/pic.png")}/>
+<apex:image value="{!IMAGEPROXYURL("http://exampledomain.com/pic.png")}"/>
+
+3.NoLonger Case Sensitive
+
+retURL, startURL, cancelURL, and saveURL
+
+Apex:
+
+1.Make Apex Method Cahceable
+@AuraEnabled(cacheable='true')
+
+2.Fire Platform Events from Batch Apex Classes
+
+implements Database.RaisesPlatformEvents
+
+public void execute(Database.BatchableContext bc,List<sobject> objs){
+	List<rec__e> cnewLst = new List<rec__e>();
+	rec__e newEvt = new rec__e();
+	cnewLst.add(newEvt);
+	EventBus.publish(cnewLst);
+}
+
+3.Use Inherited Sharing to Secure Your Apex Code
+
+public inherited sharing class SecureCode {}
+
+4. Get Domain URL from Apex
+
+url.getOrgDomainUrl().toExternalForm();
+
+
+5. Get Session Id in Asynchronous Context 
+
+UserInfo.getSessionId();
+
+6.implements Callable interface instead of making class and method virtual .
+
+7.Instantiate Custom MetaDataType.
+
+8.Event Error Handling
+

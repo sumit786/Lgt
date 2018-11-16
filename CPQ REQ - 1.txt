@@ -1,0 +1,379 @@
+//create record in lightning 
+
+<lightning:button label="new lead" onclick="{!c.createRecord}"/>
+
+createRecord : function(component,objApiName,recordTypeId) {
+
+    var createRecordEvt = $A.get('e.force:createRecord');
+    createRecord.setParams({
+        "entityApiName" : objApiName,
+        "recordTypeId" : recordTypeId,
+    });
+    createRecordEvt.fire();
+
+}
+
+//OR
+
+1. load all the fields from serverside method in doInit method.
+   load all the recordTypes from serverside method .
+2. onclick of new button set openModel attribute and then open popup window.
+   with picklist to select recordtypeid,
+   click next button to pass recordtypeid and apiname to createRecord method. 
+
+//Create Modal Popup Box In lightning
+
+<!--Control Modal Box show/hide -->
+<aura:attribute name="isOpen" type="boolean" default="false"/>
+<aura:if isTrue="{!isOpen}">
+    <!--Modal Code -->
+    <!-- Section Start -->
+        <!-- div with class slds-modal__container-->
+            <header class="slds-modal__header"></header>
+            <!--body section elements -->
+            <!-- Footer Section Elements -->
+        <!--div end-->
+    <!-- Section END -->
+</aura:if>
+openModal : function(component){
+    component.set('v.isOpen',true);
+},
+closeModal : function(component){
+    component.set('v.isOpen',false);
+}
+
+aura:method is use to pass parent side controller logic to child . So child can execute 
+
+
+objectapiname               : objects from which fields gone extract.
+fieldapiname                : fieldname respective to object name.
+customsettingapiname        : customsetting from which gone retrive fields.
+customsettingfieldapiname   :  customsetting fields.
+formulaexpession            : formula expression need to evaluate to get ouputfield value
+defaultvalue                : default value .
+outputfieldname             : aim to get this.(make required)
+
+validations :
+
+default value present then all 4 field should be empty.
+IF(
+OR(AND(
+    NOT(ISBLANK( defaultvalue__c )),
+    OR(NOT(ISBLANK(fieldapiname__c)),NOT(ISBLANK(customsettingfieldapiname__c)))
+),
+AND(
+    ISBLANK(defaultvalue__c ),
+    AND(ISBLANK(fieldapiname__c),ISBLANK(customsettingfieldapiname__c))
+))
+,true,false)
+
+Trigger on ProductInformation RecordType is metaData.
+
+public class MyProductionInfoHandler {
+    public static List<CPQ_MQT_ProductInfomation__c> getAllMdtRecords(List<CPQ_MQT_ProductInfomation__c > newPdInfoRecs){
+        
+        String mdtRecordTypeName = Label.CPQSQTmdtRecordTypeName;
+        List<CPQ_MQT_ProductInfomation__c > mdtPInfos = new List<CPQ_MQT_ProductInfomation__c >();
+        for(CPQ_MQT_ProductInfomation__c  newPdInfoRec : newPdInfoRecs){
+            if(Schema.SObjectType.CPQ_MQT_ProductInfomation__c.getRecordTypeInfosByName().get(mdtRecordTypeName).getRecordTypeId() == newPdInfoRec.RecordTypeId){
+                mdtPInfos.add(newPdInfoRec );
+            }
+        }
+        return mdtPInfos;
+    }
+    public static Map<string,Set<string>> fetchMappingCustomSettingWithFlds(){
+        Map<string,Set<string>> objWithFlds = new Map<string,Set<string>>();
+        Map<String, Schema.SObjectType> gd = Schema.getGlobalDescribe(); 
+        List<string> mappingSupportObjects = Label.CPQSQTMappingSupportCustomSetting.split(',');
+        //check all objects should be present in the org.
+        Boolean isAllValidObj = true;
+        for(string mappingSupportObject : mappingSupportObjects){
+            if(gd.containsKey(mappingSupportObject)){
+                objWithFlds.put(mappingSupportObject,gd.get(mappingSupportObject).getDescribe().fields.getMap().keySet());
+                continue;
+            }
+            isAllValidObj = false;
+            objWithFlds.clear();
+            break;
+        }
+        return objWithFlds;
+    }
+    public static Map<string,Set<string>> fetchMappingObjWithFlds(){
+        Map<string,Set<string>> objWithFlds = new Map<string,Set<string>>();
+        Map<String, Schema.SObjectType> gd = Schema.getGlobalDescribe(); 
+        List<string> mappingSupportObjects = Label.CPQSQTMappingSupportObjs.split(',');
+        //check all objects should be present in the org.
+        Boolean isAllValidObj = true;
+        for(string mappingSupportObject : mappingSupportObjects){
+            if(gd.containsKey(mappingSupportObject)){
+                objWithFlds.put(mappingSupportObject,gd.get(mappingSupportObject).getDescribe().fields.getMap().keySet());
+                continue;
+            }
+            isAllValidObj = false;
+            objWithFlds.clear();
+            system.debug('objWithFlds'+objWithFlds);
+            break;
+        }
+        return objWithFlds;
+    }
+    public static void validate(List<CPQ_MQT_ProductInfomation__c > allMdtProdctInfoRecords,Map<String,Set<string>> mapObjWithFlds,String fieldapiname,String objectapiname,Boolean isCustomSettingValidation){
+        String sFld = '';
+        String sObj = '';
+
+        List<string> flds = new List<string>();
+        List<string> objs = new List<string>();
+        //check object and field format
+        for(CPQ_MQT_ProductInfomation__c  prodInfo : allMdtProdctInfoRecords){
+            
+            sObj = String.valueOf(prodInfo.get(objectapiname)==null?'':prodInfo.get(objectapiname));
+            sFld = String.valueOf(prodInfo.get(fieldapiname)==null?'':prodInfo.get(fieldapiname));
+            if(sObj.contains(',')){
+                if(sFld.contains(',')){
+                     flds = sFld.split(',');
+                     objs = sObj.split(',');
+                    if(flds.size() == objs.size()){
+                        for(Integer i=0;i< flds.size();i++){
+                            if(mapObjWithFlds.containsKey(objs[i])){
+                                if(mapObjWithFlds.get(objs[i]).contains(flds[i])){
+                                    continue;
+                                }else{
+                                    prodInfo.addError('No Such Field '+flds[i]+' Present In : '+objs[i]);  
+                                }
+                            }else{
+                                prodInfo.addError('Improper Object Mapping  : '+objs[i]);
+                            }
+                        }
+                    }else{
+                        prodInfo.addError('Improper Object and Field Format');
+                    }
+                }else{
+                    prodInfo.addError('Improper Object Format');
+                }
+            }else if(sFld.contains(',')){
+                prodInfo.addError('Improper Field Format');
+            }else if(string.isBlank(sFld) != string.isBlank(sObj)){
+                if(string.isBlank(sFld)){
+                    prodInfo.addError('Please Fill '+fieldapiname+' value');
+                }else{
+                    prodInfo.addError('Please Fill '+objectapiname+' value');
+                }
+            }
+        }
+    }
+    /*
+    @Param : allMdtProdctInfoRecords,fieldName,objectapiname
+    @Description : check fieldName value of allMdtProdctInfoRecords which fieldname is present in objectapiname.
+    */
+    
+    public static void validateProductFld(List<CPQ_MQT_ProductInfomation__c> allMdtProdctInfoRecords,String fieldName,String objectapiname){
+        if(Schema.getGlobalDescribe().containsKey(objectapiname)){
+            Set<String> productFlds = Schema.getGlobalDescribe().get(objectapiname).getDescribe().fields.getMap().keySet(); 
+            for(CPQ_MQT_ProductInfomation__c productInfo : allMdtProdctInfoRecords){
+                if(productFlds.contains(String.valueOf(productInfo.get(fieldName)))){
+                    continue;
+                }
+                productInfo.addError('No Such Field Name : '+productInfo.get(fieldName)+' Present In '+objectapiname);
+            }
+        }else{
+            for(CPQ_MQT_ProductInfomation__c allMdtProdctInfoRecord : allMdtProdctInfoRecords){
+                allMdtProdctInfoRecord.addError(objectapiname+' Object Not Present In Current Org ');
+            }
+        }
+    }
+}
+
+
+trigger MyProductionInfo on CPQ_MQT_ProductInfomation__c  (after insert,after update){
+    system.debug('trigger execute');
+    //collect all Production Information Records of type Product Info
+    List<CPQ_MQT_ProductInfomation__c> allMdtProdctInfoRecords = MyProductionInfoHandler.getAllMdtRecords(Trigger.new);
+    System.debug('mdtPInfos'+allMdtProdctInfoRecords);
+    //do nothing and return control back if no record present
+    if(allMdtProdctInfoRecords.isEmpty()){
+       return;
+    }else{
+        //Validate OuputField In allMdtProdctInfoRecords 
+        MyProductionInfoHandler.validateProductFld(allMdtProdctInfoRecords,'outputfieldname__c','CPQ_SQT_Product__c');
+        //check format of all allMdtProdctInfoRecords object and their respective fields
+        Map<String,Set<string>> mapObjWithFlds = MyProductionInfoHandler.fetchMappingObjWithFlds();
+        if(mapObjWithFlds.isEmpty()){
+            for(CPQ_MQT_ProductInfomation__c allMdtProdctInfoRecord : allMdtProdctInfoRecords){
+                allMdtProdctInfoRecord.addError('Please Check Objects Value Inside Custom Label name:Label.CPQSQTMappingSupportObjs value: '+Label.CPQSQTMappingSupportObjs);
+            }
+        }else{
+            MyProductionInfoHandler.validate(allMdtProdctInfoRecords,mapObjWithFlds,'fieldapiname__c','objectApiName__c',false);
+        }
+        
+       //Check Custom Setting their respective fields
+        Map<String,Set<String>> mapCustSettWithFlds = MyProductionInfoHandler.fetchMappingCustomSettingWithFlds();
+        System.debug(' : mapCustSettWithFlds :'+mapCustSettWithFlds);
+        if(mapCustSettWithFlds.isEmpty()){
+            for(CPQ_MQT_ProductInfomation__c allMdtProdctInfoRecord : allMdtProdctInfoRecords){
+                allMdtProdctInfoRecord.addError('Please Check Custom Setting Value Inside Custom Label name:Label.CPQSQTMappingSupportCustomSetting value: '+Label.CPQSQTMappingSupportCustomSetting);
+            }
+        }else{
+            MyProductionInfoHandler.validate(allMdtProdctInfoRecords,mapCustSettWithFlds,'customsettingfieldapiname__c','customsettingapiname__c',true);
+        }
+    }
+}
+
+
+CPQ REQ - 1 : 
+    Add two field which can be any among any 4 field of numeric type in product information.
+
+How to work ?
+1.
+when user select fieldname ?
+    Get the fieldname and other required parameter.
+
+    1.0 : Query all records from metadatatype.
+    1.1 : Map   fields respective to objects.
+    1.2 : Map   customsettings fields respective to customsetting.
+    1.3 : Query from all objects,customsetting to get values.
+    
+2. Iterate all metadatarecords
+    check if default value present then replace field value with default value.
+    else if no defaultvalue and no formula then check for customfield/customsettingfield one must be present and replace the output field value with respective field.
+    else if no defaultvalue and formula present then evaluate the formula.
+
+
+//convert List to String
+List<String> myLst= new List<String>();
+String myLstStr = String.valueOf(myLst);
+myLstStr.replace('{','');
+myLstStr.replace('}','');
+
+public class CPQ_MQT_OuputFormatter {
+    public static void outputProvider(){
+        List<CPQ_MQT_ProductInfomation__c  > prodInfos = new List<CPQ_MQT_ProductInfomation__c>();
+        String Category = '';
+        String qry = 'Select Id,customsettingapiname__c,customsettingfieldapiname__c,defaultvalue__c,fieldapiname__c,formulaexpession__c,objectApiName__c,outputfieldname__c,Category__c '+' FROM CPQ_MQT_ProductInfomation__c   WHERE Category__c : Category';
+        //1.0  Query all product information mdt based on user input
+        try{
+            prodInfos =  Database.query(qry);
+        }catch(System.DMlException dmlExp){
+            System.debug('DML Operation Failed Due to : '+dmlExp.getMessage());
+        }
+    
+        if(prodInfos.isEmpty()){
+            System.debug('No record found');
+            return ;
+        }else{
+            //all object with respective fields
+            Map<String,Set<String>> mapObjWithFields = new Map<String,Set<String>>();
+            //all object with respective fields
+            Map<String,Set<String>> mapCusSettObjWithFields = new Map<String,Set<String>>();
+    
+            //all field with respective object
+            Map<String,String> mapFieldWithObjects = new Map<String,String>();
+    
+            //all field with respective custom setting object
+            Map<String,String> mapFieldWithCusSettObjects = new  Map<String,String>();
+    
+            List<String> flds = new List<String>();
+            List<String> objs = new List<String>();
+    
+            Map<String,String> mapOutputFldWithValue = new Map<String,String>();
+            Double fldVal = 0;
+            for(CPQ_MQT_ProductInfomation__c pi : prodInfos){
+                fldVal = 0;
+                //first check default value
+                //if formula present
+                //check is single field expression
+                if(String.isNotBlank(pi.fieldapiname__c)){
+                    flds = pi.fieldapiname__c.split(',');
+                    objs = pi.objectApiName__c.split(',');
+                    for(Integer i=0;i<flds.size();i++){
+                        if(mapObjWithFields.containsKey(flds.get(i))){
+                            mapObjWithFields.put(flds.get(i),new Set<String>{objs.get(i)});
+                        }else{
+                            mapObjWithFields.get(flds.get(i)).add(objs.get(i));
+                        }
+                    }
+                }
+                if(String.isNotBlank(pi.customsettingfieldapiname__c)){
+                    flds = pi.customsettingfieldapiname__c.split(',');
+                    objs = pi.customsettingapiname__c.split(',');
+                    for(Integer i=0;i<flds.size();i++){
+                        if(mapCusSettObjWithFields.containsKey(flds.get(i))){
+                            mapCusSettObjWithFields.put(flds.get(i),new Set<String>{objs.get(i)});
+                        }else{
+                            mapCusSettObjWithFields.get(flds.get(i)).add(objs.get(i));
+                        }
+                    }
+                }
+            }
+            //Retrive All Objects And Custom Settings Values.
+    
+            String formattedFormula = '';
+            for(CPQ_MQT_ProductInfomation__c prodInfo : prodInfos){
+                if(String.isNotBlank(prodInfo.defaultvalue__c)){
+                    if(mapOutputFldWithValue.containsKey(prodInfo.outputfieldname__c)){
+                        fldVal = Double.valueOf(mapOutputFldWithValue.get(prodInfo.outputfieldname__c))+Double.valueOf(prodInfo.defaultvalue__c);
+                        mapOutputFldWithValue.put(prodInfo.outputfieldname__c,String.valueOf(fldVal));
+                    }else{
+                        mapOutputFldWithValue.put(prodInfo.outputfieldname__c,String.valueOf(prodInfo.defaultvalue__c));
+                    }
+                }else if(String.isNotBlank(prodInfo.formulaexpession__c)){
+                    formattedFormula = prodInfo.formulaexpession__c;
+                    if(String.isNotBlank(prodInfo.fieldapiname__c)){
+                        flds = prodInfo.fieldapiname__c.split(',');
+                        objs = prodInfo.objectApiName__c.split(',');
+                        for(Integer i=0;i<flds.size();i++){
+                            if(objs[i] == 'objapiname'){
+                                //respective value
+                                //formattedFormula = formattedFormula.replaceAll(flds[i],String.valueOf(objapinameLst.get(0).get(flds[i])));
+                            }
+                        }
+                    }
+                    if(String.isNotBlank(prodInfo.customsettingfieldapiname__c)){
+                        flds = prodInfo.customsettingfieldapiname__c.split(',');
+                        objs = prodInfo.customsettingapiname__c.split(',');
+                        for(Integer i=0;i<flds.size();i++){
+                            if(objs[i] == 'custSettapiname'){
+                                //respective value
+                                //formattedFormula = formattedFormula.replaceAll(flds[i],String.valueOf(custSettapinameLst.get(0).get(flds[i])));
+                            }
+                        }
+                    }
+                    if(mapOutputFldWithValue.containsKey(prodInfo.outputfieldname__c)){
+                        //fldVal = doEval(formattedFormula);
+                        fldVal += Double.valueOf(mapOutputFldWithValue.get(prodInfo.outputfieldname__c));
+                        mapOutputFldWithValue.put(prodInfo.outputfieldname__c,String.valueOf(fldVal));
+                    }else{
+                        //fldVal = doEval(formattedFormula);
+                        mapOutputFldWithValue.put(prodInfo.outputfieldname__c,String.valueOf(fldVal));
+                    }
+                }else{
+                    //when formula fld is Blank
+                    if(String.isNotBlank(prodInfo.fieldapiname__c)){
+                        flds = prodInfo.fieldapiname__c.split(',');
+                        objs = prodInfo.objectApiName__c.split(',');
+                        for(Integer i=0;i<flds.size();i++){
+                            if(objs[i] == 'objapiname'){
+                            //fldVal = objapinameLst.get(0).get(fld[i]);
+                            }
+                        }
+                    }
+                    if(String.isNotBlank(prodInfo.customsettingfieldapiname__c)){
+                        flds = prodInfo.customsettingfieldapiname__c.split(',');
+                        objs = prodInfo.customsettingapiname__c.split(',');
+                        for(Integer i=0;i<flds.size();i++){
+                            if(objs[i] == 'custSettapiname'){
+                                //fldVal = custSettapinameLst.get(0).get(fld[i]);
+                            }
+                        }
+                    }
+                    if(mapOutputFldWithValue.containsKey(prodInfo.outputfieldname__c)){
+                        mapOutputFldWithValue.put(prodInfo.outputfieldname__c,String.valueOf(fldVal));
+                    }else{
+                        mapOutputFldWithValue.put(prodInfo.outputfieldname__c,String.valueOf(fldVal));
+                    }
+                }
+            } 
+    
+            system.debug(mapOutputFldWithValue);
+            
+        }
+    }
+}

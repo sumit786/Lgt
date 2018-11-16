@@ -1,0 +1,676 @@
+/*
+    Dynamically Open Salesforce File For ContentDocument 
+*/
+
+1.Serverside code : query and return ContentDocument with fields like
+id,Title,FileType,CreatedBy.Name,ContentSize.
+
+2.Load it During Component lading by using aura:handler init action .
+populate attribute which holds ContentDocument Data.
+
+3.Iterate attribute to display all ContentDocument Info.
+<aura:itrate...>
+    <tr>
+        <th>
+             <div class="slds-truncate" title="{!CD.Title}">
+                     <a onclick="{!c.getSelected}" data-Id="{!CD.Id}">{!CD.Title}</a>
+             </div>
+        </th>
+        ...
+    </tr>
+</aura:itrate...>
+
+4.
+when ever recordType Get Selected 
+
+<aura:attribute type="string" name="selectedDocumentId" />
+set selectedDocumentId with value 
+component.set('v.selectedDocumentId',event.getSource().get("data-Id"));
+
+<aura:attribute type="Boolean" name="isOpen" />
+<aura:if isTrue="{!v.isOpen}">
+    <!--Modal Box>
+    <!--Under Modal Box body -->
+    <lightning:fileCard fileId="{!v.selectedDocumentId}"/>
+</aura:if>
+
+5. Predefine lightning:fileCard element is use to preview contentDocument .
+
+/*
+    Help Text Icon with Lightning:input field
+*/
+
+Before : helptext was above label
+
+<lightning:helptext content="Please enter your first name" class="customIcon"/>
+<lightning:input label="First name" aura:id="inputCmp" required="true"/>
+
+After :
+.make lightning:input label invisible.
+.Add a label above help text.
+<label class="slds-form-element__label" style="margin-right: 0.5rem;">Last Name</label>
+<lightning:helptext content="Please enter your first name" class="customIcon"/>
+<lightning:input label="First name" aura:id="inputCmp" required="true" variant="label-hidden"/>
+
+/*
+    get salesforce object Id prefix (first 3 character of Id)
+*/
+
+system.debug('Prifix–> ' + customObject__c.sobjecttype.getDescribe().getKeyPrefix());
+
+Account : 001
+
+/*
+    Dispaly Login User Profile Picture
+*/
+
+.fetch current userinfo(Name,SmallPhotoUrl, FullPhotoUrl) from user object in serverside code during page load with the help of aura:handler .and set attribute
+ <aura:attribute name="currentuser" type="user" default="{'sobjectType' : 'User'}" />
+
+.Use Lightning Avator to display image.
+ <lightning:avatar src="{!v.oUser.SmallPhotoUrl}" />
+ alternate.
+  <img src="{!v.oUser.FullPhotoUrl}" alt="{!v.oUser.Name}"/> 
+
+/*
+    Mark Locations On Google Map With Salesforce Lightning Component
+*/
+<aura:attribute name="mapMarkersData" type="Object"/>
+<lightning:map mapMarkers="{! v.mapMarkersData }"
+                       center="{! v.mapCenter }"
+                       zoomLevel="{! v.zoomLevel }"
+                       markersTitle="{! v.markersTitle }"
+                       showFooter="{ !v.showFooter }" />
+
+/*
+    Custom Dependent Picklist 
+*/
+
+http://sfdcmonkey.com/2018/08/31/dependent-picklist-lightningselect-lightning-salesforce/
+<aura:attribute name="listControllingValues" type="list" default="[]" description="to store controller field values"/>
+<aura:attribute name="listDependingValues" type="list" default="['--- None ---']" description="to store dependent field values"/>
+<aura:attribute name="depnedentFieldMap" type="map" description="map to store dependent values with controlling value"/>
+
+/*
+
+*/
+
+nospace vs space(any component)  :
+
+.THIS.styleClass  :  will apply the styling properties only to top-level tags containing a reference to styleClass.
+.THIS .styleClass :  will be applied to any tag that contains a reference to styleClass within a component.
+
+
+/*
+    Display multiple lines in salesforce lightning component
+*/
+ /n escape characters for insert a newline in string
+
+var sMsg = 'Hello i am first statement \n'+'Hello i am Second statement \n Hello i am Third statement';
+var type : 'success';
+
+showToast : function(component, sMsg, type) {
+    var toastEvent = $A.get("e.force:showToast");
+    toastEvent.setParams({
+        mode: 'sticky',
+        message: sMsg,
+        type : type
+    });
+    toastEvent.fire();
+}
+.toastMessage.forceActionsText {
+     white-space : pre-line !important;
+}
+
+/*
+    USE lightning:accordion
+*/
+.On load of component set conList value in doInit by retriving record from Serverside.
+<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+<aura:attribute name="conList" type="List"/>
+<lightning:accordion >
+    <aura:iteration items="{!v.conList}" var="con">
+        <lightning:accordionSection name="{!con.name}" label="{!con.Name}">
+            <aura:set attribute="body">
+                <p><b>Street</b> : {!con.MailingStreet}</p>
+                <p><b>City</b> : {!con.MailingCity}</p>
+                <p><b>State</b> : {!con.MailingState}</p>
+                <p><b>Postcode</b> : {!con.MailingPostalcode}</p>
+                <p><b>Country</b> : {!con.MailingCountry}</p>
+                <p><b>Email</b> : {!con.Email}</p>
+                <p><b>Phone</b> : {!con.Phone}</p>
+            </aura:set>
+        </lightning:accordionSection>
+    </aura:iteration>
+</lightning:accordion>
+
+
+/*
+    MultiSelect Picklist
+*/
+
+.Set multiselect picklist attribute value during page load time by calling from serverside  function.
+.
+<aura:attribute name="listSkillsOptions" type="List" default="[]"/>
+<aura:attribute name="selectedSkillsItems" type="List" default="[]"/>
+<lightning:dualListbox aura:id="selectOptions"
+                           name="Skills"
+                           label= "Select Skills" 
+                           sourceLabel="Available Options" 
+                           selectedLabel="Selected Options" 
+                           options="{! v.listSkillsOptions }"
+                           value="{! v.selectedSkillsItems }"
+                           onchange="{! c.handleChange }"/>
+
+handleChange: function (component, event) {
+    // get the updated/changed values   
+    var selectedOptionsList = event.getParam("value");
+    // get the updated/changed source  
+    var targetName = event.getSource().get("v.name");
+    
+    // update the selected itmes  
+    if(targetName == 'Skills'){ 
+        component.set("v.selectedSkillsItems" , selectedOptionsList);
+    }
+    
+}
+
+/*
+    Restrict Past Dates From Date Picker In Lightning Component
+*/
+
+.Add Static Resorce https://code.jquery.com/jquery-2.2.4.min.js.
+<ltng:require styles="{! $Resource.jQuery_UI + '/jquery-ui-1.12.1/jquery-ui.min.css'}" 
+                  scripts="{!join(',', 
+                           $Resource.jquery224 ,   
+                           $Resource.jQuery_UI + '/jquery-ui-1.12.1/jquery-ui.min.js')
+                           }" afterScriptsLoaded="{!c.scriptsLoaded}"/>
+
+
+/*
+   Spring 18
+*/
+
+//work as with sharing for >=V41.0
+//works as without sharing 
+public class LightningController { 
+
+}
+
+/*
+    Alternate/Workaround for contains() 
+*/
+Currently, there is NO Expression operators [ contains(), include() ] available in lightning which can check that item are in the list or not. 
+<aura:if isTrue="{!CONTAINS(v.listItems, 'Name')}">
+
+<!--auraIfWithContains.cmp-->
+
+//check does list contains specific element
+<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+<aura:attribute name="listItems" type="List" />
+<aura:attribute name="element" type="String" />
+<aura:attribute name="condition" type="Boolean" />
+
+<aura:if isTrue="{!v.condition}">
+    {!v.body}
+</aura:if>
+
+doInit : function(component,event,helper){
+    var getList = component.get('v.items'); 
+    var getElement = component.get('v.element');
+    var getElementIndex = getList.indexOf(getElement);
+    if(getElementIndex != -1){ 
+        component.set('v.condition',true);
+    }else{
+        component.set('v.condition',false);
+    }
+}
+
+<c:auraIfWithContains items="{!v.listItems}"  element="Name">
+
+</c:auraIfWithContains>
+
+
+ <aura:attribute name="backgroundColor" type="String" default="#000000" />
+ <design:attribute name="backgroundColor" label="Background Color" description="Enter Background Color" />
+
+ Name : Is the name of the component attribute
+ Label : User friendly name to display in App builder
+
+ setup  >>  In Quick find box type ‘Lightning App Builder’  >>   new   >>   next   >>   enter label   >>   select template   >>   finish.
+
+<sfdc:objects>
+    <sfdc:object>Account</sfdc:object>
+</sfdc:objects>
+
+/*
+    Display lightning Component in visualforce page REF : vfPageWithLC.vfp
+*/
+
+1.
+. Lightning Component can not be display on visualpage directly have to create a lighnting application with ltng:outApp interface with global scope.
+.add component as resource by using aura:dependency tag.
+<aura:application access="GLOBAL" extends="ltng:outApp">
+    <!--Add Component using aura:dependency tag -->
+    <aura:dependency resource="namespace:componentname"/>
+</aura:application>
+
+2.
+Add <apex:includeLightning />
+
+<!--Gone Contain Lightning Component -->
+<div id="lightningcontainer">
+
+</div>
+<script>
+    $Lightning.use("namespace:appname", function() {
+         $Lightning.createComponent("namespace:componentname",{attributename:value,...},"lightningcontainer",function(component){
+              component.set("v.accId" , '{!$CurrentPage.parameters.recId}');
+         });
+    });
+</script>
+
+
+$Lightning.use("namespace:applicationname",function(){}) can be call multiple time but must refer the same application.
+$Lightning.createComponent("namespace:componentname",{attributename:value,...},"lightningcontainer",callback function); can be call multiple time in  visualforce page to assign them in different part of visulforce page which must be specified in aura:dependency resource.
+
+
+/*
+    Add Delete Row Dynamically in Lightning 
+*/
+
+registername and handlername must be same.
+<aura:event type="Component" description="Event template">
+    <aura:attribute name="index" type="Integer" />
+</aura:event>
+<aura:component >
+    <aura:attribute name="ContactInstance" type="Contact"/>
+    <aura:attribute name="rowIndex" type="Integer"/>
+    <aura:registerEvent name="deleteRowcmpevt" type="c:deleteRowcmpevt"/>
+    <tr class="slds-text-title_caps">
+        <td> 
+            {!v.rowIndex + 1}
+        </td>
+        <td>
+            <ui:inputText class="slds-input" value="{!v.ContactInstance.FirstName}"/>
+        </td>
+        <td>
+            <ui:inputText class="slds-input" value="{!v.ContactInstance.LastName}"/>
+        </td>
+        <td>
+            <ui:inputPhone class="slds-input" value="{!v.ContactInstance.Phone}"/>
+        </td>
+        <td>
+            <a onclick="{!c.removeRow}">
+                <lightning:icon variant="error" iconName="utility:delete" class="slds-icon slds-icon_small" size="small" alternativeText="icon"/>
+                <span class="slds-assistive-text">Delete Icon</span>
+            </a>
+        </td> 
+    </tr>
+</aura:component>
+({
+    removeRow : function(component, event, helper) {
+        helper.fireancmpevent('deleteRowcmpevt',{'rowIndex':component.get("v.rowIndex")});
+    }
+})
+({
+    fireancmpevent : function(evtname,obj){
+        var delrowevt = component.getEvent(evtname);
+        if(delrowevt){
+            delrowevt.setParam(obj);
+            delrowevt.fire();
+        }else{
+            console.log('no such event present'+delrowevt);
+        }
+    }
+})
+<aura:component >
+    <aura:handler name="deleteRowcmpevt" event="c:deleteRowcmpevt" action="{!c.handleDeleteRow}"/>
+    <aura:attribute name="contactList" type="Contact[]"/>
+    <div class="slds-page-header">
+        <h1 class="slds-page-header__title">Create Multiple Contacts, With Add/Delete Rows Dynamically</h1>
+        <p class="slds-text-body_small slds-line-height_reset">By Sumit</p>
+    </div>
+    
+    <!--Table Part-->           
+    <table class="slds-table slds-table_bordered slds-table_cell-buffer"> 
+        <thead>
+            <tr class="slds-text-title_caps">
+                <th scope="col">
+                    <div class="slds-truncate">S.No</div>
+                </th>
+                <th scope="col">
+                    <div class="slds-truncate" title="First Name">First Name</div>
+                </th>
+                <th scope="col">
+                    <div class="slds-truncate" title="Last Name">Last Name</div>
+                </th>
+                <th scope="col">
+                    <div class="slds-truncate" title="Phone">Phone</div>
+                </th>
+                <th>
+                    <div class="slds-truncate" title="Add">
+                        <a onclick="{!c.handleAddRow}">
+                            <lightning:icon iconName="utility:add" class="slds-icon slds-icon_small" size="small" alternativeText="add"/>
+                            <span class="slds-assistive-text">Add Icon</span>
+                        </a>
+                    </div>
+                </th>
+            </tr>
+        </thead>   
+        <tbody>      
+            <aura:iteration items="{!v.contactList}" var="item" indexVar="index">
+                <c:dynamicRowItem ContactInstance="{!item}" rowIndex="{!index}" />
+            </aura:iteration>
+        </tbody>
+    </table>
+    <br/>
+</aura:component>
+
+({
+handleAddRow: function(component, event, helper) { 
+    helper.createObjectData(component, event);
+},
+handleDeleteRow: function(component, event, helper) {  
+    var index = event.getParam("index");
+    var AllRowsList = component.get("v.contactList");
+    AllRowsList.splice(index, 1); 
+    component.set("v.contactList", AllRowsList);
+}
+
+})
+
+({
+    createObjectData: function(component, event) {
+        var RowItemList = component.get("v.contactList");
+        RowItemList.push({
+            'sobjectType': 'Contact',
+            'FirstName': '',
+            'LastName': '',
+            'Phone': ''
+        });
+        component.set("v.contactList", RowItemList);
+    },
+    validateRequired: function(component, event) {
+        var isValid = true;
+        var allContactRows = component.get("v.contactList");
+        for (var indexVar = 0; indexVar < allContactRows.length; indexVar++) {
+            if (allContactRows[indexVar].FirstName == '') {
+                isValid = false;
+                alert('First Name Can\'t be Blank on Row Number ' + (indexVar + 1));
+            }
+        }
+        return isValid;
+    }
+})
+
+/* show and hide text on mouseover and mouseout */
+<ui:outputText value="*********************************" title="mail@gmail.com" mouseout="{!c.onMouseOut}" mouseover="{!c.onMouseOver}"/>
+
+onMouseOut : function(component,event,helper){
+    var source = event.getSource();
+    source.set('v.value','*********************************');
+},
+onMouseOver : function(component,event,helper){
+    var source = event.getSource();
+    source.set('v.value',source.get('v.title'));
+}
+
+/*download */
+
+downloadOnCSV : function(component,event,helper){
+    var objLst = component.get('v.accounts');
+    var csvfile = helper.convertArrayOfObjectsToCSV(component,objLst);
+    if(csvfile == null){
+        helper.toastMsg('No Record Present','');
+    }
+
+    //create an anchor tag with file in csv format fire click event so file will be download in same page as target is _self
+    var hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+    hiddenElement.target = '_self';  
+    hiddenElement.download = 'ExportData.csv';  // CSV file Name* you can change it.[only name not .csv] 
+    document.body.appendChild(hiddenElement); // Required for FireFox browser
+    hiddenElement.click(); // using click() js function to download csv file
+},
+convertArrayOfObjectsToCSV  : function(component,objLst){
+
+    if(null === objLst || !objLst.length){
+        return null;
+    }
+
+    var colDivider = ',';
+    var lineDivider = '\n';
+    var keys = ['FirstName','LastName','Department','MobilePhone','Id' ];
+        
+    var csvStringResult = '';
+    csvStringResult += keys.join(colDivider);
+    csvStringResult += lineDivider;//"FirstName,LastName,Department,MobilePhone,Id"
+
+    var counter ;
+    for(var index=0;index<objLst.length;index++){
+        counter = 0;
+        for(var keyNo in keys){
+            var key = keys[keyNo];
+            if(counter>0){
+                csvStringResult += columnDivider;
+            }
+            csvStringResult += '"'+ objectRecords[index][key]+'"';
+            counter++;
+        }
+        csvStringResult += lineDivider;
+    }
+
+    return csvStringResult;
+}
+
+var elements = ['Fire', 'Wind', 'Rain'];
+elements.join('-');//Fire-Wind-Rain
+elements.join(',');//Fire,Wind,Rain
+
+var myStr = '';
+myStr += element.join(',')'//"Fire,Wind,Rain"
+
+ <div class="slds-grid slds-grid--align-end slds-m-around--x-small">
+    <button class="slds-button slds-button--brand" onclick="{!c.addSelected}">Add Records</button>
+</div>
+
+<ui:inputCheckbox aura:id="checkBox" text="{!rec.Id}" />
+
+addSelected : function(component,event,helper){
+    var checkboxes = component.find('checkbox');
+    if(checkboxes){
+        var selectedRecsId = [];
+        for(let index=0;index<checkboxes;i++){
+            if(checkboxes[i].get('v.value')){
+                selectedRecsId.push(checkboxes[i].get('v.text'));
+            }
+        }
+        if(selectedRecsId){
+            helper.updateRecords(selectedRecsId);
+        }
+    }else{
+        console.log('no such element founded');
+    }
+}
+updateRecords : function(recs){
+    //make a serverside call
+    //sync view
+    $A.get('e.force:refreshView').fire();
+}
+
+<!-- create a modal box -->
+
+<aura:attribute name="isOpen" type="boolean" default="false" />
+<lightning:button label="openmodal" onclick="{!c.openModalBox}" />
+<aura:if isTrue="{!v.isOpen}">
+    <section <div-modal header,body,footer div> section>
+</aura:if>
+
+openModalBox : function(component,event,helper){
+    component.set('v.isOpen',true);
+},
+closeModalBox : function(component,event,helper){
+    component.set('v.isOpen',false);
+}
+
+/*validation in js with respect to pattern*/
+
+var pattern = '';
+var field = val;
+if(field.match(pattern)){
+
+}
+
+/*Delete Multiple record using checkbox */
+<ui:inputCheckbox aura:id="box3" change="{!c.selectAll}"/>  
+<ui:inputCheckbox text="{!con.Id}" aura:id="boxPack" value="" change="{!c.checkboxSelect}"/>
+
+<aura:attribute name="countselectedrecords" type="Integer" />
+
+selectordeselectAll  : function(component,event,helper){
+
+    var checkboxval =  event.getSource().get('v.value');
+    var allCheckboxes = component.find('boxPack');
+    if(Array.isArray(allCheckboxes)){
+        for(let index=0;index<allCheckboxes.length;index++){
+            allCheckboxes[i].set('v.value',checkboxval);
+        }
+    }else if (allCheckboxes){
+        allCheckboxes.set('v.value',checkboxval);
+    }else {
+        console.log('No such checkbox present');
+    }
+    helper.countselected(component);
+}
+
+checkboxSelect : function(component,event,helper){
+    helper.countselected(component);
+}
+
+countselected : function(component){
+    var allCheckboxes = component.find('boxPack');
+    var count = 0;
+    if(Array.isArray(allCheckboxes)){
+        for(let index=0;index<allCheckboxes.length;index++){
+            if(allCheckboxes[i].get('v.value')){
+                count++;
+            }
+        }
+    }else if (allCheckboxes){
+        allCheckboxes.set('v.value',checkboxval);
+        count++;
+    }else {
+        console.log('No such checkbox present');
+    }
+    component.set('v.countselectedrecords',count);
+}
+
+/* Custom sorting on datatable in apex */
+
+List<object> objLst = Database.query('select fields from contact order by fieldname ');
+
+<aura:attribute name="arrowDirection" type="string" default="arrowup" description="Use for change arrow sign direction on header based on click"/>
+<aura:attribute name="selectedTabsoft" type="string" default="firstName" description="Use for show/hide arraow sign on header based on conditions"/>
+
+<aura:attribute name="ListOfContact" type="contact[]"/>    
+<aura:attribute name="orderform" type="boolean" />
+
+<th class="slds-is-sortable slds-text-title--caps" scope="col" onclick="{!c.sortFirstName}">
+    <a href="javascript:void(0);" class="slds-th__action slds-text-link--reset">
+        <span class="slds-assistive-text">Sort</span>
+        <span class="slds-truncate" title="Name">First Name</span>  
+        <aura:if isTrue="{! and(v.arrowDirection == 'arrowdown', v.selectedTabsoft == 'firstName') }">&nbsp;  &#9660; </aura:if>  
+        <aura:if isTrue="{! and(v.arrowDirection != 'arrowdown', v.selectedTabsoft == 'firstName') }"> &nbsp;  &#9650; </aura:if> 
+    </a>
+</th>
+
+sortFirstName : function(component,event,helper){
+
+    var objLst = component.get('v.ListOfContact');
+    if(objLst && objLst.length > 1){
+        component.set("v.selectedTabsoft", 'firstName');
+        var currentDir = component.get("v.arrowDirection");
+        if(currentDir == 'arrowdown'){
+            component.set("v.arrowDirection", 'arrowup');
+            component.set("v.orderform","ASC");
+        }else {
+            component.set("v.arrowDirection", 'arrowdown');
+            component.set("v.orderform","DESC");
+        }
+    }
+}
+
+public static List<Contact> fetchContact(String sortField,String orderForm){
+    String qry = 'SELECT firstName, LastName, Department, MobilePhone FROM Contact ';
+    qry += ' order by ' +sortField+' '+orderForm ;
+    try{
+        Database.query(qry);
+    }catch(system.Excption exp){
+        throw new AuraHandlerException('Dml Operation Failed Due to '+exp.getMessage());
+    }
+}
+
+/*
+    Pagination Pending
+*/
+
+$A.util.toggelClass(cmp,"slds-hide");
+$A.util.toggelClass(cmp,"slds-show");
+
+/*
+    Spinner
+*/
+<div aura:id="spinnerId" class="slds-spinner_container">
+    <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+        <span class="slds-assistive-text">Loading</span>
+        <div class="slds-spinner__dot-a"></div>
+        <div class="slds-spinner__dot-b"></div>
+    </div>
+</div>
+.THIS.slds-spinner_container { 
+    
+    color:red;
+    z-index: 10000;
+    position: fixed;   
+}
+
+
+/*
+    Sample Code For Password Type Field
+*/
+
+<ui:inputSecret aura:id="pwd" label="Password " class="" value="" maxlength="10" placeholder="Enter upto 10 character" required="false" size="20"/>
+
+
+/*
+    populate picklist value 
+*/
+
+ <ui:inputSelect  aura:id="accIndustry" class="slds-select"  change="{!c.onPicklistChange}"/>
+
+  var opts = [];
+  opts.push({
+        class: "optionClass",
+        label: "--- None ---",
+        value: ""
+    });
+    for (var i = 0; i < allValues.length; i++) {
+        opts.push({
+            class: "optionClass",
+            label: allValues[i],
+            value: allValues[i]
+        });
+    }
+    component.find('accIndustry').set("v.options", opts);
+
+/*
+    Conditions with aura:if tag
+*/
+can not use && ,AND ,||, OR,contains tags.
+logical function like and(),or() cna be used.
+<aura:if isTrue="{!and(expr1,expr2...)}">
+</aura:if>
+<aura:if isTrue="{!or(expr1,expr2...)}">
+</aura:if>
+or(and(v.ValueOneisTrue, v.ValuethreeisTrue) , v.ValueTwoisFalse )

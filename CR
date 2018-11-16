@@ -1,0 +1,374 @@
+Email :
+
+.Turn off task notifications for entire org
+	I want to update the information in roughly 10k tasks with out notifying users.
+
+Solution :
+uncheck the "Enable User Control over Task Assignment Notifications" checkbox from Activity Settings 
+
+.Email Alert on certain criteria
+ solution : From Process Builder 
+	.Creat an email for specific object with 5 user reciver.
+	.As Per critria can invoke it from Process Builder.
+
+.How to get an email when getting a task assigned ?
+	.Layout Email Notification Checkbox.
+
+.Generate a unique ID for Accounts and Contacts
+Left(ID,8)&"-"& MID(ID, 9, 4)&"-"&Right(ID, 4)&"-"&Left(ID,4)&"-"&Right(CaseSafeID(ID),12).
+
+.We can only have one active email footer .
+
+.
+On opportunity ClosedWon Send an EmailAlert and Include Child Primary Quote Field 
+Quote is a child of the Opportunity, you won't be able to pull this information into the Opportunity level email template,But Quote template can have Opportunity Fields.
+Solution :
+
+Create an Quote Template .
+.Trigger Fire and Update Quotes.
+.In Quote Check isPrimaryQuote and isOpportunityClosedWon.
+
+Lightning For Gmail Add New Account instead of New Contact under "Add to Salesforce" button
+
+
+How to get info of any salesforce element .
+
+Workbench.
+Get Workflow rule api name
+
+Info>Metadata and Components > Choose WorkflowRule
+
+Email Send in with in 15min ?
+>If Schedule Email Date is in past then it will be send with in an hour.
+
+
+>How do I create a formula with merge fields for lightning email templates?
+As far as I read, there is NO way to do this in the Lightning Email Templates. The HML(Handlebars Merge Language) doesn't support conditional statements at least now.
+Formula Field on the Contact
+
+>Mass Email ?
+
+Only in Classic.
+
+Report and Dashboards :
+
+.how do I show conact and account information in a campaign report?
+You'll need to either create a Joined Report that uses a Campaign with Contacts Report for one Report Block and a Campaign with Leads Report for one Report Block.
+OR
+create custom Cross-Object Formula fields on the Campaign Member object and use a standard Campaigns with Campaign Members Report .
+
+
+Community User Can View Report but can not subscribe report.
+View Number of user subscribe to Lightning Report.
+
+Show Records  run a report to show all agreement reocrds that are due to expire with in 30, 60, 90 and 120 days.
+
+Bucket Field :
+.closeDate-Today()
+.Summarized Report.
+
+Create a Formula Field :
+IF(CloseDate - TODAY() < 0, "Lapsed",IF(CloseDate - TODAY() <= 30, "0-30 Days",IF(CloseDate - TODAY() <= 60, "31-60 Days",IF(CloseDate - TODAY() <= 90, "61-90 Days","90+"))))
+
+
+SALES CLOUD :
+
+>Prevent Same Parent ID On WorkOrders that land on same date.
+	FORMULA FIELD : UniqueContactOrderKey.Text,Unique.
+	DATEVALUE(StartDate) + ContactId 
+
+>Only Few Standard Object Support Matching Rule.
+
+>NOT Change Stage of an opportunity backwards for sales rep?
+VALIDATION FIELD :
+AND(
+	$Profile.Name = 'Custom Sales Reps',
+	Recordtype.Name = 'Operations',
+	CASE(StageName,
+			"Prospect", 0,
+			"Recognize", 1,
+			"Define", 2,
+			"Evaluate", 3,
+			"Negotiate and Select", 4,
+			"Pending", 5,
+			"Won, "6",
+			"Lost", 6",
+			0
+	)
+	<
+	CASE(PRIORVALUE(StageName),
+			"Prospect", 0,
+			"Recognize", 1,
+			"Define", 2,
+			"Evaluate", 3,
+			"Negotiate and Select", 4,
+			"Pending", 5,
+			"Won, "6",
+			"Lost", 6",
+			0
+	)
+)
+
+>Lock Field(Deal_Type__c) For a specific recordType(Sales) for ceratin Profile :
+	.Restrict on profile level using FLS.
+	.Remove From PageLayout
+	.Validation Rule :
+	AND(
+		RecordType.Name = 'Sales',
+		ISCHANGED(Deal_Type__c),
+		CASE(Profile.Name,
+			'Sales',1,
+			'Sales Operations',1,
+			0
+		) = 1
+	)
+
+>When LeadStatus unsubscribe then EmailOption = "Yes"
+	>WorkFlow
+	>ProcessBuilder
+	>before trigger
+
+***Lead Assignment 
+	Lead Company Name Exist then Assign it accordingly.
+	Else Lead PostalCode assign lead.
+
+solution :
+	Create a separate prospect .
+	Use ProcessBuilder to invoke flow to assign  
+
+
+Flow Exception Email:
+
+Apex Exception Email > Add an email
+When process flow interview an error send an email to Apex Exception Email Receipatant.
+
+
+AutoPopulate Task DueDate:
+TODAY() + 
+CASE( WEEKDAY(TODAY()), 
+5,3, 
+6,2,
+1)
+
+
+CPQ:
+AND(OR( Product2.Name = 'New Surveillance',
+		Product2.Name = 'New Surveillance'
+	),
+	CASE(FIELDAPINAME__c,
+		'Global', 1, 
+		'Primary',1, 
+		'Secondary',1, 
+		'Third',1, 
+		'One-Time Upfront',1, 
+		'Annual - Upfront',1, 
+		'Annual - Arrears',1,
+		0)=0
+)
+
+
+Opportunity Product Page Layout Click on Multi Line layout  Add the fields you want to show and save
+
+
+OR(
+	AND(TEXT(status__c) == 'Planning',ISBLANK(Submission_Date__C)),
+	AND(TEXT(status__c) == 'Review',ISBLANK(Review_Date__C)),
+	AND(TEXT(status__c) == 'Approved',ISBLANK(Approval_Date__C)),
+	AND(TEXT(status__c) == 'Finished',ISBLANK(Finish_Date__C))
+)
+
+.Prepopulate value for an record. QuickAction.
+
+Process Builder Issue :
+
+>Task Firing twice during lead conversion.
+	.Do you want to execute the action only when specific changes are made to the record ? Yes
+> DUPLICATE_VALUE: Already a campaign member
+	Recursive Checked
+	.Do you want to execute the action only when specific changes are made to the record ? Yes
+>variable has not been set ?
+	change Value: $GlobalContant.Null  to Is null Boolean False.
+
+>Only System Admin able to edit record when locked__c is checked.
+	IF($Profile.Name <>'System Administrator',Checkbox__c = TRUE)
+>Process Builder Not Firing for certain criteria.
+	.each node evaluate the next criteria or stopping
+>invalid cross reference id using process builder
+	.Deploying a process that posts to a chatter group.When you develop the process in a sandbox you are providing the name of the group or queue and the process builder links it to the internal  ID behind the scenes.Unfortunately the IDs are typically different in your dev org and production org.
+>Trigger
+	
+	List<Opportunity> opps = Trigger.new;
+	Set<string> vendorIds = new Set<string>();
+	for(Opportunity opp : opps){
+		if(opp.finalized__c){
+			if(string.isNotBlank(opp.vendor1__c) && (Trigger.new || Trigger.oldMap.get(opp.id).vendor1__c!=opp.vendor1__c)){
+				vendorIds.add(opp.vendor1__c);
+			}
+			if(string.isNotBlank(opp.vendor2__c) && (Trigger.new || Trigger.oldMap.get(opp.id).vendor2__c!=opp.vendor2__c)){
+				vendorIds.add(opp.vendor2__c);
+			}
+			if(string.isNotBlank(opp.vendor3__c) && (Trigger.new || Trigger.oldMap.get(opp.id).vendor3__c!=opp.vendor3__c)){
+				vendorIds.add(opp.vendor3__c);
+			}
+		}
+	}
+	if(vendorIds.isEmpty()){
+		Map<Id,vendor__c> vendors = new Map<Id,vendor__c>([select id,name FROM vendor__c WHERE ID in : vendorIds]);
+		List<Opportunity> updateDeals = new List<Opportunity>();
+		Opportunity updateDeal = new Opportunity();
+		vendor__c vendor = new vendor__c();
+		for(Opportunity opp : opps){
+			if(string.isNotBlank(opp.vendor1__c) && (Trigger.new || Trigger.oldMap.get(opp.id).vendor1__c != opp.vendor1__c)){
+				vendor = vendors.containsKey(opp.vendor1__c)?vendors.get(opp.vendor1__c):new vendor__c();
+				updateDeal.vendor1Name__c = vendor.name;
+				//...
+			}
+		}
+	}
+
+clone : true : pass by value.
+clone : false : pass by reference.
+
+Lightning Naviagation :
+
+ <apex:outputLink value="/apex/myVisualForcePage?id={!Id}">
+1.
+	<apex:outputLink action="/apex/myVisualForcePage?id={!Id}">Redirect</apex:outputLink>
+	public PageRefernce redircet(){
+		return new PageReference('/apex/myVisualForcePage?id='+recId);
+	}
+
+2.
+ <a onclick="{!c.clickListeBilans}"> Name of the link </a>
+ Controller:
+ clickListeBilans : function(cmp,evt,helper){
+ 	let recId = cmp.get('v.recordId');
+ 	let url = 'apex/myVisualForcePage?id='+recordId;
+ 	helper.clickToURL(cmp,url);
+ }
+ Helper:
+ clickToURL:function(cmp,url){
+ 	var urlEvent = $A.get("e.force:navigateToURL");
+ 	urlEvent.setParams({
+        "url" : url
+    });
+    urlEvent.fire();
+ }
+
+
+> Lightning wrapper code conversion 
+	make all variable inside wrapper class @AuraEnabled
+	public class MyAccountWrap{
+		@AuraEnabled
+		public boolean isSelected{get;set;}
+		@AuraEnabled
+		public Account acc{get;set;}
+		public MyAccountWrap(isSelected,acc){
+			this.isSelected = isSelected;
+			this.acc = acc;
+		}
+	}
+
+	//desearlized the value in server side code to perform any action
+	List<CommonWrapperClass.MyAccountWrap> lstPositionRecords = 
+			(List<CommonWrapperClass.MyAccountWrap>)
+			System.JSON.deserialize(positionRecords,List<CommonWrapperClass.
+			MyAccountWrap>.class);
+	//reference to server method
+	var action = cmp.get('c:methodName');
+	//handle server response
+	action.setCallback(this,function(response){
+		var status = response.getStatus();
+		if(status == "SUCCESS"){
+			var result = response.getReturnValue();
+			 if(!$A.util.isEmpty(result) && !$A.util.isUndefined(result))
+	            component.set("v.lstPositions",result);
+		}
+	});
+	//enqueue request
+	$A.enqueueAction(action);
+
+>Formula Field Value on the basis of Order Picklist5__c-->Picklist4__c-->Picklist3__c-->Picklist2__c-->Picklist1__c
+BLANKVALUE(field,replacevalue)
+BLANKVALUE(TEXT(Picklist5__c), BLANKVALUE(TEXT(Picklist4__c),  BLANKVALUE(TEXT(Picklist3__c),  BLANKVALUE(TEXT(Picklist2__c),  TEXT(Picklist1__c)))))
+
+
+>Merge Opportunity :
+
+>Display Age Of Record . TODAY()-createdDate
+>Display Time Spend On Deal. If(closedWon,TODAY()-closeWonDate(),'')
+>Calculate the number of days between two dates while excluding weekends or weekdays.
+	1.Weekday Count Formula
+
+	2.
+
+
+/*Block Editing CloseWon Opportunity with active order*/
+
+trigger OpportunityTrigger on Opportunity (before update) {
+    
+    List<Id> oppIds = new List<Id>(); 
+    List<Opportunity> deals = trigger.New;
+    for(Opportunity opp : deals){
+    	if(opp.StageName == 'Closed Won'){
+      		oppIds.add(opp.Id) ; 
+    	}
+    }
+    if(!oppIds.isEmpty()){
+   		List<Order> orders = [select OpportunityId FROM Opportunity WHERE status='Activated' AND OpportunityId =:oppIds];
+   		if(!orders.isEmpty()){
+   			for(Order ord : Orders){
+   				Trigger.oldMap.get(ord.OpportunityId).addError('You cannot edit this');
+   			}
+   		}
+    }
+}
+
+
+/*Send an email when stage and amount change*/
+
+AND(
+	ISCHANGE(amount),
+	Text(stageName)='Certain Value'
+)
+
+Send an emailAlert
+
+
+>DataLoader : showAllObject
+
+
+>populate child field on parent.
+---workflow.
+---processbuilder.
+	ParentNumber : [order].case__c
+---trigger.
+
+>Populate Child Object When Parent Object Field Value change.
+	.Trigger
+
+>Flow : Formula Expression is Invalid Incorrect Funciton ISBLANK()
+	Create_New_Group_List:checkbox
+NOT({!Create_New_Group_List}) 
+&
+NOT(ISBLANK({!varGroupList}))
+
+Learn : ISPICKVAL(StageName,'Booked Revenue, Complete Won')
+
+Too many SOQL queries: 101
+System.CalloutException : 
+Web Service Callout may not occur after a DML statement within the same transaction.
+
+CrossObjectException :
+
+.Id no logner exist. 
+	.Wrong User Id Provided.
+.Case Record Type: id value not valid for the users profile: 012T00000000VfykAE
+In Test Class User Test
+dml exception they donot have access to recordType.
+
+.Test Class . 
+insert rec;
+rec.ownerId;//
+Have to query rec then can access field value.
+

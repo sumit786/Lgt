@@ -1,0 +1,48 @@
+/*Salesforce Integration With MuleSoft Salesforce Connector*/
+
+/*OAuth 2.0 JWT Bearer*/
+1.0
+Cretae a Connected App.
+API (Enable OAuth Settings)
+Callback URL.
+permission :
+    . Full access (full) 
+    . Perform requests on your behalf at any time (refresh_token, offline_access)
+1.1
+Manage > Edit policies > 
+    Permitted Users : All users may self-authorize
+
+1.2
+Copy the consumer key : 3MVG9d8..z.hDcPJ6yN107CpeqBwSodh3LJdF2HBHw_f3c3qB8s_v.eHWIxOMpNS88KV69o_LYD5LtsayCKNY
+
+2.Generate Keystore :
+
+2.0
+Security Controls->Certificate and Key Management
+
+Self-Sign 
+MuleDevCertificate.
+Download it.
+Rename file as salesforce-keystore.jks.
+
+
+1.3
+Connected App >...>edit > check use digital signature >  upload the certificate file > upload > save
+
+*Copy both the key store (salesforce-keystore.jks) and the public key (salesforce-cert.crt) files in your workspace.
+
+
+3. Authorization checking using postman app.
+
+https://login.salesforce.com/services/oauth2/authorize?client_id=3MVG9d8..z.hDcPJ6yN107CpeqBwSodh3LJdF2HBHw_f3c3qB8s_v.eHWIxOMpNS88KV69o_LYD5LtsayCKNY&redirect_uri=https://www.getpostman.com/oauth2/callback&response_type=code
+
+error=redirect_uri_mismatch&error_description=redirect_uri%20must%20match%20configuration
+
+
+Postman :
+
+Click on Authorization Tab.
+Select Oauth2.0 from type dropdown.
+Click On Get New Access Token then fill up all required field and request.
+
+o/p : opens  a oAUth app enter userid and password and allow access.

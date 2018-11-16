@@ -1,0 +1,170 @@
+Salesforce CPQ:
+
+----------------------------------
+: Products, Quotes, & Contracts  :
+----------------------------------
+Opportunity : Possible Deal
+
+Select and Configure : Product and PriceBook
+Products   : Holds Product Information.(name,code,description)
+Price Book : Track Multiple Price For Product.(holds product with different prices)
+
+
+Company sales duroflex materials in different cities so as per transportation,tax price will be differ from each other .
+---------------------------
+PRODUCT  |  PriceBook
+---------------------------
+DUR001 --- Banglore : 1000
+		   Mumbai   : 1200
+		   Hyderabad: 1100
+
+DUR001 --- Banglore : 1000
+		   Mumbai   : 1200
+		   Hyderabad: 1100		 
+
+------------
+:  Quotes  : 
+------------
+Enable  Quotes Settings then Quote Template to control pdf view.
+
+QuoteLineItems : Holds all product with salesprice and discount field where we can apply discount which gone reflect on Quote.
+Add all product related to opportunity.
+Only one quote can be sync at a time.
+primary quote pushes the total quote amount into the Amount field on your opportunity.
+The Products related list also updates with the products from your quote.
+
+Salesforce Billing :
+-----------------------
+:Order,Invoice,Payment:
+-----------------------
+Order   : Booking
+Invoice : Billing
+Cutsomer owe you specific amount on specific date.
+Payment : Cash
+
+
+recurring business 		 : time, contract amendments, and proration
+Cross-Team Collaboration : 
+
+
+Salesforce CPQ generates the contract(What are our obligations and did we deliver on them in time?).
+Its place where order generated which is a key to tracking booking and generating invoice.
+	align billing date adding amendments at the middle of billing cycle.
+	Temporarily change important billing dates
+	Prevent an order from billing until it meets certain criteria. 
+
+unified experience of Salesforce CPQ and Salesforce Billing?
+
+Lead to Invoice : Finance and account handle by ERP,CPQ handle by Salesforce
+launching new products, invoicing challenges with subscription, usage/metrics charges, and consumption/utility charges
+Lead to Cash    : All in Salesforce
+Salesforce Billing also supports invoicing and orchestrates collections
+
+Tax Management
+
+Whether or not a product should be taxed in the first place
+What integration should be used (more on that below) Avalara and Vertex
+Tax code(s)
+GL rules to direct the record keeping process
+
+Salesforce Mobile App Customization :
+
+Quick actions
+	QFB>Global Actions >
+	Object > Actions>
+	Note
+Don’t remove a required field from the layout unless:
+
+The field has a default value.
+You specify a predefined field value for the action.
+The field already contains data. For example, if the action updates a record, the user entered the required information when they initially created the record.
+
+Compact layouts
+
+object > compact layout > 
+.up to 10 fields.
+.textarearich,longtextarea can not be added
+
+Mobile navigation
+
+Salesforce Navigation > arrange items
+he first item in the list becomes the mobile landing page for your users. Choose the first item wisely.
+
+Section 1 :
+Menu Items : any item above smartsearch
+
+Section 2:
+Recently viewed objects
+
+Section3:
+Items below smart search
+
+
+Picklist Administration :
+
+standard field can not be deleted and custom field can be deleted.
+
+standard picklist :
+Can't Use a Formula for a Default Value
+Can't be a Dependent Picklist
+Can't Be Restricted
+
+New: Create a new value.
+Reorder: Rearrange the existing values.
+Replace: Replace an existing value. You can replace an existing value with a new value, one of the other values, or a blank value. If you replace an existing value with a blank value, existing records will not display the value anymore.
+Printable View: See all of your values at once. This is a helpful view while you set up a dependent picklist.
+Chart Colors: Customize the appearance of values on charts and reports.
+
+Limitation :
+
+Lead Status	100
+Task Status	100
+Case Status	100
+Opportunity Stage	100
+Task Priority	50
+Case Priority	50
+
+Custom single-select picklists can have:
+
+Up to 1,000 values
+Up to 255 characters per value
+Custom multi-select picklists can have:
+
+Up to 500 values
+Up to 255 characters per value
+
+You can make a custom picklist field into a restricted picklist only if the picklist has fewer than 1,000 values
+
+QFB > Picklist Value Sets > 
+Global picklist value sets are always restricted picklists : share data across org.
+Can be easily change from single picklist to multiple picklist.
+
+can define a default value for the global value set
+IF($Profile.Name = "Fast Response Sales", "High", "")
+
+External Services 
+
+endpoint is simply what exposes the web services resources that External Services needs to interact with.
+
+
+
+/*
+Configurable Bundles in Salesforce CPQ
+*/
+
+Bundles : product in bundles.
+
+static Bundles : These bundles always have some product together. no change allowed.
+Configurable Bundle : Free hand to choose any product.
+Nested Bundle : Bundle inside another bundle (recommended level 1 or 2).
+
+https://developer.salesforce.com/promotions/orgs/cpqtrails/success
+sumitdevcpq@agilesolution.com
+CodersHeaven777
+Astrat
+
+
+Account > Edge Communication > Related List > Quote (Q-000000) >  Edit Lines > 
+
+.Add Products. seacrh >  Select
+.

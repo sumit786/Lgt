@@ -1,0 +1,169 @@
+													Continous Integartion 
+
+		plan > develope > build > test > testrelease > 
+(force.com CLI)>VSCODE editor with scratch org>testrelease(sandbox,UAT,staging)>Packaging to develiver to Production Org.
+
+CLI :
+ manage their DX projects, create scratch orgs, push and pull metadata to and from a scratch org, and run unit tests
+ DevOps can use it as part of build automation scripts: to create and access environments, to deploy source, to install packages, and to run tests.
+
+Salesforce DX project have source and configuration files.
+Salesforce DX tracks any change you make locally in the project and any changes you have made in your scratch org.
+CLIcommand : sfdx force:source:status
+
+VS CODE :
+
+1.
+extension : Salesforce Extensions for VS Code. (Bundle)
+2.
+ctrl+shift+p --> command platee :
+find files and command to commit and do more
+
+3.
+Terminal :
+
+sfdx commands.
+sfdx:Refresh SObject Definitions.(get all metadata of org)
+
+
+shortcuts :
+
+ctrl+shift+L
+
+
+															Heroku 
+
+Saas : with downloading software in your server able to use it just by user credentials.Service provider manage data,upgrade software.Salesforce CRM.
+Paas : deliver Saas to user.Here developement can be done.Customzie Saas applicaton.Heroku.
+Iaas : AWS,Azura.
+
+Heroku support java,perl,python,php for application developement.
+
+webabased platform.
+Customer Engagement Website
+Empowering Mobile and IoT via API Services
+Data Manipulation
+
+
+
+
+
+
+GIT AND GIT HUB :
+
+GIT : Is a Version Control Application.
+
+GIT HUB : collabaration platform.
+
+
+GIT HUB :
+
+branch : developer team one
+pull rquest : compare code in two branch
+
+1.Create a branch off of master
+2.Make commits
+3.Open a pull request
+4.Collaborate
+5.Make more commits
+6.Interact with integrations
+7.Merge to master branch
+
+sumit786
+CodersHeaven777
+
+Salesforce DX :
+
+Scratch Org : A org with 30 day life time for developement.As they are ephemeral  by nature good for developing a new feature.
+They work great for testing.
+
+1. Enable DEV HUB.
+2. Insatll CLI.https://sfdc.co/sfdx_cli_win
+   check properly install by typing sfdx on cmd.
+   sfdx force --help (available topic)
+   sfdx force:doc:commands:list (All available commands)
+
+3. Login to DevHub
+    (sfdx force:auth:web:login -h
+	sfdx force:auth:web:login --help)
+
+	-d:default -a:alias
+	sfdx force:auth:web:login -d -a DevHub
+	
+	result : 
+	Gone open Default browser with AUTHENTICATION URL .
+	Login to Source Org,allow it.
+	Receive
+	get org with sepcific username and org id.
+
+4.
+	Set Up Version Control .
+
+	//clone project in your local drive
+	cd drivename
+	mkdir projecnameversion
+	cd projecnameversion
+	git clone https://github.com/forcedotcom/sfdx-dreamhouse.git
+	cd retriveFoldername
+
+	//Create a branch for project
+	git checkout -b my_branch
+
+	sfdx force --help
+
+5. Create and Test Our Scratch Org
+   Run config/project-scratch-def.json
+   //create the scratch org, set it as your default, and give it an alias:
+   sfdx force:org:create -s -f config/project-scratch-def.json -a dreamhouse-org
+   // command uses the Salesforce front door to automatically log in with our cached authentication token no need of password
+   sfdx force:org:open
+   //Push Source Metadata to Scratch Org
+   sfdx force:source:push
+
+   sfdx force:user:permset:assign -n Dreamhouse
+
+   //Test Your App in the Scratch Org
+   sfdx force:org:open
+
+
+
+
+Create an App :
+
+sfdx force:project:create -n geolocation
+
+
+IDEA :
+
+
+from VCS all the code gone stay .
+
+As developer copy master branch and create a new branch and place all the changes in it.
+Collabarate with person 
+.Merge Code To new Vesrion of Git Master Branch.
+.From NewMaster Branch Deploye code in to Sandbox,PreProd,Production.
+.Packages to installation between env.
+
+git remote add origin https://github.com/sumit786/Lgt.git
+git config --global user.name "sumit786"
+git config --global user.email "sumitdreamforcedeveloper@gmail.com"
+
+
+git branch devsumit786
+git checkout devsumit786
+git branch
+
+git add -A
+git commit -m "file added"
+
+git checkout master
+git branch
+git merge devsumit786
+
+git push origin master
+
+
+git pull (sync)
+
+
+git push origin --delete branchname

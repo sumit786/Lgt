@@ -1,0 +1,9 @@
+Syntax Error : 
+
+<apex:commandbutton id="gauth" styleClass="myClass" onclick="clkHandler(this,event);'"../>
+
+' causing syntax error.
+
+Visualforce Error :
+
+apex:inputFile can not be used in conjunction with an action component, apex:commandButton or apex:commandLink that specifies a rerender or oncomplete attribute. 

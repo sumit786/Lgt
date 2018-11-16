@@ -1,0 +1,109 @@
+/****
+*****USING APEX :
+*****/
+Retrving Data From DB.
+DML Operation.
+Callouts.
+Email.
+
+@AuraEnabled : 
+Methods must be static and marked public or global which
+    .make accessable to clientside.
+    .seralize data .
+
+
+when just want to retrieve data then make AuraEnabled method cachable.
+
+@AuraEnabled(cacheable=true)
+public static Account getAccount(Id accountId) {
+    return [select id,name FROM Account WHERE id =: accountId limit 1];
+}
+
+<aura:component controller="SimpleServerSideController">
+</aura:component>
+
+//Phone property isn’t serialized on the server side, and isn’t returned as part of the result data.
+public with sharing class SimpleAccountController {
+    
+    @AuraEnabled
+    public static List<SimpleAccount> getAccounts() {
+
+        // Perform isAccessible() check here
+		
+        // SimpleAccount is a simple "wrapper" Apex class for transport
+        List<SimpleAccount> simpleAccounts = new List<SimpleAccount>();
+
+        List<Account> accounts = [SELECT Id, Name, Phone FROM Account LIMIT 5];
+        for (Account acct : accounts) {
+            simpleAccounts.add(new SimpleAccount(acct.Id, acct.Name, acct.Phone));
+        }
+        
+        return simpleAccounts;
+    }
+    public class SimpleAccount {
+    
+        @AuraEnabled public String Id { get; set; }
+        @AuraEnabled public String Name { get; set; }
+        public String Phone { get; set; }
+        
+        // Trivial constructor, for server-side Apex -> client-side JavaScript
+        public SimpleAccount(String id, String name, String phone) {
+            this.Id = id;
+            this.Name = name;
+            this.Phone = phone;
+        }
+        
+        // Default, no-arg constructor, for client-side -> server-side
+        public SimpleAccount() {}
+        
+    }
+}
+
+Instead showing inconventient message or Possible missing info message want to display something more meaningful.
+
+cause by throw new System.NoAccessException();
+Error message: An internal server error has occurred
+Error ID: 1674415636-56539 
+
+cause by throw new AuraHandledException(message);
+Insufficient access for price__c field in CPQ_SQT_Product Object
+
+Create and throw a System.AuraHandledException from your server-side controller to return a custom error message.
+throw new AuraHandledException(message);
+
+let state = response.getState();
+if(state === 'ERROR'){
+    let errs = state.getError();
+    if(errs){
+        console.log('error msg : '+errs[0].message);
+        showMessage(errs[0].message);
+    }
+}
+
+showMessage : function(title,message){
+    title = title || 'No Title';
+    message = message || 'No Message Passed';
+    let toastMsg = $A.get('e:force.toastmessage');
+    toastmessage.setParams({
+        title : title,
+        message : message
+    });
+    toastMsg.fire();
+}
+
+passing value to serverside with setParams can pass  4mb data at most.
+apex method executed and after that callback method gone execute.
+As Possible action State Like NEW,RUNNING,SUCCESS(Executes SuccessFully and Possible Return value accordingly),ERROR(EXCEPTION,CODE BREAK),INCOMPLETE(offline),*ABORTED(Cancelled).
+
+make data storable for retrival actions .
+
+pre : 44.0
+action.setStorable();
+
+after : 44.0
+@AuraEnabled(cachable=true)
+
+if the component that created the action is no longer valid, that is cmp.isValid() == false.the logic has been executed on the server but the action callback isn’t executed.
+action.setAbortable();
+
+

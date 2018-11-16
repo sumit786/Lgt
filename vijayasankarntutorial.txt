@@ -1,0 +1,116 @@
+/*vijayasankarn */
+
+/*show and hide an model*/
+
+Using CSS and JS 
+$A.util.toggleClass(component.find('myModal'), 'slds-fade-in-open');
+
+Using Attribute 
+<aura:attribute name="showModal" type="boolean" default="false" />
+<aura:if isTrue="{!v.showModal}>
+    <section>
+        <!--Content Here -->
+    </section>
+</aura:if>
+
+var showModal = component.get('v.showModal');
+component.set('v.showModal', !showModal);
+
+
+Errors after enabling Person Account 
+
+Error 1:
+Invalid field TextName for SObject Account
+
+Cause:
+Name field canot be referenced directly on a VF page when isPersonAccount is TRUE, which means when Person Account is enabled for that org.
+
+Fix:
+Instead of directly referencing Name field, use FirstName and LastName separately.
+
+<apex:outputfield value="{!account.FirstName}/>
+<apex:outputfield value="{!account.LastName}/>
+
+Error 2:
+When referencing account.name with inputField, you must select isPersonAccount in your SOQL query
+
+While using any of the name fields including FirstName and LastName​ anywhere in the SOQL query, query doesn’t include isPersonAccount in field list.
+
+Fix :
+Add isPersonAccount to the SOQL Query.
+
+[select name,isPersonAccount .. FROM Account WHERE isPersonAccount]
+
+
+
+//check community or lightning page
+
+@AuraEnabled
+public static string getSiteType(){
+    return Site.getSiteType();
+}
+
+var communityPageKeys = [];
+let fetchSite = component.get('c.getSiteType');
+fetchSite.callback(this,function(response){
+    if (response.getState() === "SUCCESS"){
+        let sitename = response.getReturnValue();
+        if(communityPageKeys.indexOf(sitename) < 0){
+                //not community page
+        } else {
+
+        }
+    }
+});
+
+
+/*Unit Test for Content Document */
+
+@isTest
+public class <Controller_Name_here>Controller_AC_Test {
+    @isTest static void <method_name_here>_Test()
+    {
+        ContentVersion contentVersionInsert = new ContentVersion(
+            Title = 'Test',
+            PathOnClient = 'Test.jpg',
+            VersionData = Blob.valueOf('Test Content Data'),
+            IsMajorVersion = true
+        );
+        insert contentVersionInsert;
+ 
+        // Test INSERT
+        ContentVersion contentVersionSelect = [SELECT Id, Title, ContentDocumentId FROM ContentVersion WHERE Id = :contentVersionInsert.Id LIMIT 1];
+        List<ContentDocument> documents = [SELECT Id, Title, LatestPublishedVersionId FROM ContentDocument];
+        System.assertEquals(documents.size(), 1);
+ 
+        // Test DELETE
+        <Controller_Name_here>Controller_AC.deleteContentDocument(contentVersionSelect.ContentDocumentId);
+        documents = [SELECT Id, Title, LatestPublishedVersionId FROM ContentDocument];
+        System.assertEquals(documents.size(), 0);
+    }
+}
+
+/*
+    Display Related Files of Parent in Child Record
+*/
+
+<apex:page standardController="Child__c">
+    <apex:relatedList subject="{!Child__c.ParentField__c}" list="AttachedContentDocuments" />
+</apex:page>
+
+AttachedContentDocument is a read-only object that contains all ContentDocument objects associated with an object.ContentDocument supports CRUD.
+
+
+/*
+    Display Custom Value like Yes or NO Based on Boolean value
+*/
+
+<ui:outputText value="{!IF(v.booleanattribute,'Yes','No')}" />
+
+
+/*
+    Making Trigger Execute at last
+*/
+
+:execute code async inside of future,batchclass.
+
