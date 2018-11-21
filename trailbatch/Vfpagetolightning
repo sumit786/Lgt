@@ -1,0 +1,64 @@
+standardStyleSheet="false",lightingStyleSheets="true"
+<apex:slds/>
+
+<apex:page controller="OpportunityWizard" tabStyle="Opportunity" lightingStyleSheets="true">
+	<apex:sectionheader title="New Customer Opportunity" subtitle="Step 1"/>
+	<apex:form>
+		<apex:pageblock title="Custom Information" mode="edit">
+
+		</apex:pageblock>
+	</apex:form>
+</apex:page>
+
+viewstate : holds the values so it maintain along the wizard.
+
+
+
+<namespace/c:cmpName/>
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+doInit : function(cmp,evt,helper){
+	
+	if(cmp.checkVar){
+		cmp.checkVar = cmp.checkVar+1;
+	}else{
+		cmp.checkVar = 0;
+	}
+
+	if(helper.checkVar){
+		helper.checkVar = cmp.checkVar+1;
+	}else{
+		helper.checkVar = 0;
+	}
+
+	console.log('checkVar property of controller '+cmp.checkVar);
+	console.log('checkVar property of helper '+helper.checkVar);
+}
+
+trigger MarkDirtyIfFail on BatchApexErrorEvent (after insert) {
+    Set<Id> asyncApexJobIds = new Set<Id>();
+    for(BatchApexErrorEvent evt:Trigger.new){
+        asyncApexJobIds.add(evt.AsyncApexJobId);
+    }
+    
+    Map<Id,AsyncApexJob> jobs = new Map<Id,AsyncApexJob>(
+        [SELECT id, ApexClass.Name FROM AsyncApexJob WHERE Id IN :asyncApexJobIds]
+    );
+    
+    List<Account> records = new List<Account>();
+    for(BatchApexErrorEvent evt:Trigger.new){
+        //only handle events for the job(s) we care about
+        if(jobs.get(evt.AsyncApexJobId).ApexClass.Name == 'PlatformEventRaise'){
+            for (String item : evt.JobScope.split(',')) {
+                Account a = new Account(
+                    Id = (Id)item,
+                    ExceptionType__c = evt.ExceptionType,
+                    Dirty__c = true
+                );
+                records.add(a);
+            }
+        }
+    }
+    update records;
+}

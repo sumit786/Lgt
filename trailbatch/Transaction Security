@@ -1,0 +1,20 @@
+ Transaction Security :
+
+ Data Export for Account, Case, Contact, Lead, and Opportunity objects. Prevents unauthorized downloads.
+ Entity for authentication providers and sessions, client browsers, and login IP. Provides notification when a specific resource (entity) is accessed.
+ Logins. Limits sessions or requires additional authentication.
+ Access Resource for connected apps and reports and dashboards. Blocks access to sensitive information or requires two-factor authentication before access is allowed.
+
+ Notification :
+
+ Email and in app notification.
+
+ Create Transaction Security policies :
+
+ QFB> Transaction > Enable .
+
+ implements TxnSecurity.PolicyCondition
+ public boolean evaluate(TxnSecurity.Event e) {
+ 	
+
+ }

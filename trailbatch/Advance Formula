@@ -1,0 +1,15 @@
+Advance Formula 
+
+Close_Date_Alert:
+
+AND(NOT(IsClosed), CloseDate < TODAY() )
+IF(CloseDate < TODAY(),IF(IsClosed,false,true),false)IF(CloseDate < DATEVALUE($System.OriginDateTime),IF(IsClosed,true,false),false),false)
+
+'Hey McFly, unless you are planning to go back in time, please update your close date'
+
+
+Select createdDate,name,phone,MobilePhone,Email,Account.name FROM Contact WHERE id in (select Contact__c FROM EnquiryEDI__c WHERE Type_of_Event__c='Annual Days' OR  Type_of_Event__c = 'Concerts' OR Type_of_Event__c = 'Conferences' OR Type_of_Event__c = 'Examination' OR Type_of_Event__c = 'Exhibitions' OR Type_of_Event__c = 'Fashion Show' OR Type_of_Event__c = 'Media Events' OR Type_of_Event__c = 'Seminars' OR Type_of_Event__c = 'Trade Fair' OR Type_of_Event__c = 'Training' ORDER BY CreatedDate
+)
+
+
+

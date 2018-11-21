@@ -1,0 +1,89 @@
+<aura:component implements="force:appHostable" >
+    <!--<div class="demo-only-spacing demo-only-padding">
+        <div>
+            <div class="slds-p-top_none" >None</div>
+            <div class="slds-p-top_xxx-small">xxxsmall</div>
+            <div class="slds-p-top_xx-small">xxsmall</div>
+            <div class="slds-p-top_x-small">xsmall</div>
+            <div class="slds-p-top_small">small</div>
+            <div class="slds-p-top_medium">medium</div>
+            <div class="slds-p-top_large">large</div>
+            <div class="slds-p-top_x-large">extralarge</div>
+            <div class="slds-p-top_xx-large">huge</div>
+        </div>
+    </div>-->
+    <div class="slds-align_absolute-center" style="height: 5rem;">
+        <div class="slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            This content will be positioned in the absolute center of its container
+        </div>
+    </div>
+    
+    <div class="slds-box">
+        <p>This is a regular-sized box.</p>
+    </div>
+    <div class="slds-theme_inverse">
+        <dl class="">
+            <dt>First Label:</dt>
+            <dd>Description for first label</dd>
+            <dt>Second Label:</dt>
+            <dd>Description for second label</dd>
+        </dl>
+    </div>
+    <div class="slds-clearfix">
+        <div class="slds-clearfix">
+            <div class="slds-float_left slds-border_bottom slds-border_left slds-border_right slds-border_top">
+                <p class="slds-theme_error">I’m floooaaaating left</p>
+            </div>
+            <div class="slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+                <p class="slds-theme_success">I’m floooaaaating Right</p>
+            </div>
+        </div>
+    </div>
+    <div class="slds-grid slds-gutters_x-large">
+        <div class="slds-theme_default slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link_reset">1</a></span>
+        </div>
+        <div class="slds-theme_shade  slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link_reset">2</a></span>
+        </div>
+        <div class="slds-theme_inverse  slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link_reset">3</a></span>
+        </div>
+        <div class="slds-theme_alt-inverse  slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link_reset">4</a></span>
+        </div>
+        <div class="slds-theme_success slds-size_3-of-12  slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link">5</a></span>
+        </div>
+        <div class="slds-theme_info  slds-size_3-of-12 slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link">6</a></span>
+        </div>
+        <div class="slds-theme_warning  slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link">7</a></span>
+        </div>
+        <div class="slds-theme_error  slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link">8</a></span>
+        </div>
+        <div class="slds-theme_offline slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link">9</a></span>
+        </div>
+        <div class="slds-theme_alert-texture slds-col slds-float_right slds-border_bottom slds-border_left slds-border_right slds-border_top">
+            <span><a href="javascript:void(0);" class="slds-text-link">10</a></span>
+        </div>
+    </div>
+    <div style="width: 200px;">
+        <p class="slds-hyphenate">A long heading might be supercalifragilisticexpiallidocious.</p>
+    </div>
+    <a href="javascript:void(0);" class="slds-text-link_reset slds-theme_error">Reset</a><hr/>
+    <a href="javascript:void(0);" class="slds-text-link slds-theme_error">Link</a><hr/>
+    <a href="javascript:void(0);" class="slds-text-link_faux slds-theme_error">Faux</a>
+   
+    <div>
+        <div >
+            <div class="slds-p-around_medium slds-border_bottom slds-border_left slds-border_right slds-border_top">My Component</div>
+        </div>
+        <div >
+            <div class="slds-p-around_medium slds-border_bottom slds-border_left slds-border_right slds-border_top">My Component</div>
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,61 @@
+Salesforce Connect :
+
+view, search, and modify data that’s stored outside your Salesforce org.
+	.large amount of data that you don’t want to copy into your Salesforce org (hold as reference).
+	.need small amount of data any time.
+	
+External object :
+
+holds reference of data in other system.
+Limited edit permission.
+No Sharing.
+Limited Query.
+
+no formula field,workflowr or trigger.
+
+OData 2.0 adapter or OData 4.0 adapter : Modern Rest Protocol.
+
+
+Set Up :
+
+Create the external data source .
+External Data Sources > New External DataSource > 
+
+orderDB
+Salesforce Connect: OData 2.0 as the type
+https://orderdb.herokuapp.com/orders.svc/ as the URL
+save.
+
+Authenticate External Source :
+
+Named Principal—Your entire Salesforce org shares one login account on the external system.
+Per User—Your org uses multiple login accounts on the external system. You or your users can set up their personal authentication settings for the external system.
+
+HttpRequest req = new HttpRequest();
+req.setEndpoint('https://my_endpoint.example.com/some_path');
+req.setMethod('GET');
+
+// Because we didn't set the endpoint as a named credential, 
+// our code has to specify:
+// - The required username and password to access the endpoint
+// - The header and header information
+ 
+String username = 'myname';
+String password = 'mypwd';
+  
+Blob headerValue = Blob.valueOf(username + ':' + password);
+String authorizationHeader = 'BASIC ' +
+EncodingUtil.base64Encode(headerValue);
+req.setHeader('Authorization', authorizationHeader);
+   
+// Create a new http object to send the request object
+// A response object is generated as a result of the request  
+  
+Http http = new Http();
+HTTPResponse res = http.send(req);
+System.debug(res.getBody());
+
+field should be unique and externalId text Type.
+External Lookup : Lookup relationship between two external object .
+
+

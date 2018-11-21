@@ -1,0 +1,41 @@
+Company - Wide Setting :
+
+
+
+Locale Settings:
+	1.Default locale: English (United Kingdom)
+		Default Time Zone: (GMT +00:00) Greenwich Mean Time
+	
+	2.(can be done here
+
+	Street: 123 Secret Street
+	City: Baltimore
+	State: Maryland
+	Zip: 20755
+
+	Update the company's default time zone to (GMT-07:00) Mountain Standard Time (America/Phoenix)
+	)
+	3.
+	Activate Multiple currency : checkbox enable
+	Currency Setup
+		3.1 
+		change corporate currency :
+
+Fiscal Year :
+	(Modify your company's fiscal year to start in February)
+
+
+Personal Locale :
+
+My Setting > Language and time zone > 
+Add Personal Time Zone
+Add Own Locale
+Salesforce EndUser Language 
+Add Personal currency(for multicurrency).
+
+(ex:Customize your personal time zone to (GMT-04:00) Venezuela Time (America/Caracas))
+
+Enable Advance Currency Settings :
+
+Manage Dated Exchange Rate :
+	

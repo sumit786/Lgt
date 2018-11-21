@@ -1,0 +1,74 @@
+<apex:page controller="GoogleDriveController" showHeader="false" showChat="false" sidebar="false">
+    <style>
+        body,footer{
+        color: #000000 !important;
+        background: #AED6F1 !important;
+        }
+        .root{
+        font-size: 30px;
+        font-family: verdana;
+        text-align: center;
+        background: #AED6F1; 
+        }
+        .headerText{
+        color: #000000 !important;
+        background: #AED6F1 !important;
+        }
+        .error {
+        font-style: italic;
+        font-size: 15px;
+        font-weight: bold;
+        text-align: center;
+        color: green;
+        }
+        .myClass {
+        color: #000000 !important;
+        background: #FAF706 !important;
+        width: 300px;
+        font-size: 20px !important;
+        height: 35px;
+        text-transform: capitalize;
+        }
+        .container{
+        color: #FFFFFF !important;
+        }
+        .main{
+        background : #AED6F1 !important;
+        color: #FFFFFF !important;
+        }
+    </style>
+    <script>
+        function clkHandler(cmp,evt){
+            console.log('execute'+cmp+typeof evt);
+            if(cmp){
+                if(cmp.id === 'gauth'){
+                    cmp.value = 'Authenticating....';
+                }else if(cmp.id === 'fileupload'){
+                    cmp.value = 'Uploading...';
+                }
+                window.setTimeout(function(){ console.log("Done"); }, 3000);
+            }
+        }
+    </script>
+    <div class="root" align="center">
+        <apex:image value="{!$Resource.CompanyLogo}" width="200" height="200" />
+        <center class="container">
+            <apex:form style="margin-top:5%;margin-left:5%;width:60%">
+                <div class="main">
+                    <center class="headerText">Google Authenticate</center>
+                    <apex:commandbutton id="gauth" styleClass="myClass" onclick="clkHandler(this,event);" action="{!DriveAuth}" value="Google Drive Authentication" reRender="fileupload" rendered="{!!CodeStatus}"/>
+                    <br/>
+                    <br/>
+                    <apex:inputfile value="{!file}" contentType="{!filetype}" filename="{!filename}" rendered="{!CodeStatus}"/>
+                    <br/>
+                    <br/>
+                    <apex:commandButton id="fileupload" styleClass="myClass" onclick="clkHandler(this,event);" value="Upload" action="{!UploadFile}" rendered="{!CodeStatus}"/>
+                    <br/>
+                    <br/>
+                    <apex:messages styleClass="error" />
+                    <br/>
+                </div>
+            </apex:form>
+        </center>
+    </div>
+</apex:page>

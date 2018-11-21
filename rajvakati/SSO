@@ -1,0 +1,248 @@
+Login Using Twitter,LinkndedIn,Gmail,FB :
+
+Regiser Auth In Twitter :
+
+1. https://apps.twitter.com/
+	Create app in twitter  
+	.collect clientid,client secert.
+2. Create Auth provider in salesforce
+	.Enter collect clientid,client secert.
+	collect callback url
+3. Modify twitter app callback url.
+4. configure MyDomain Authprovider as login Option.
+
+
+Login Using LinkedIn :
+
+1. Create an app in linkedIn.
+   .collect clientid,client secert.
+2. Create Auth provider in salesforce
+	.Enter collect clientid,client secert.
+	collect callback url
+3. Modify LinkedIn app callback url.
+4. configure MyDomain Authprovider as login Option
+
+global class AutoRegistrationHandler implements Auth.RegistrationHandler {
+	
+	global User createUser(Id portalId,Auth.UserData data){
+		if(data.provider == 'LinkedIn'){
+			List<Account> newCompany = [select id FROM Acount WHERE name='LinkedIn');
+			
+			Contact newLinkedInUser = new Contact();
+			newLinkedInUser.firstName = data.firstName;
+			newLinkedInUser.lastName = data.lastName;
+			newLinkedInUser.account = newCompany.get(0).id;
+			insert newLinkedInUser;
+
+			User newUser = new User();
+
+		}
+
+	}
+
+	global User updateUser(Id userId,Id portalId,Auth.UserData data){
+		User xistUser = new User(id=userId);
+		xistUser.lastname = data.lastName;
+		xistUser.firstname = data.firstName;
+		update xistUser;
+	}
+}
+
+global boolean canCreateUser(AUth.UserData data){
+	Set<string> users = (Set<string>) SSOUser__c.getAll().keySet();
+	if(users.containsKey(data.username)){
+		return true;
+	}
+	return false;
+}
+
+
+OneLogin :
+
+1.
+https://www.onelogin.com/signup
+
+Set Up SAML 2.0
+
+https://login.salesforce.com?so=<Your Organization ID>
+
+Download
+
+2.
+QFB > Single Sign-On Settings
+
+New OneLogin
+Issuer: Issuer URL copied from your app’s SSO tab in OneLogin
+Entity ID: https://saml.salesforce.com
+Identity Provider Certificate : downloaded from OneLogin
+Request Signing Certificate: Default Certificate
+Request Signature Method: RSA-SHA1
+Assertion Decryption Certificate: Assertion not encrypted
+SAML Identity Type: Username
+SAML Identity Location: Subject
+Identity Provider Login URL: SAML Endpoint URL copied from your app’s SSO tab in OneLogin
+Identity Provider Logout URL: -blank-
+Custom Error URL: -blank- 
+Service Provider Initiated Request Binding: HTTP POST
+
+3.
+Adding it to myDomain > customize login option.
+
+
+
+public class OpportunityCls {
+    @auraenabled 
+    public static List<Opportunity> getAllOpportnities(){
+        return [Select Id , StageName,CloseDate , CreatedDate ,Name from Opportunity];
+    }
+}
+
+<aura:component controller="OpportunityCls">
+    <aura:attribute name="opportunities" type="Opportunity[]" default=""/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <div>
+        <table class="table table-sm table-inverse">
+            <thead  class="bg-primary text-white">
+                <tr>
+                    <th><strong>Opportunity Name</strong></th>
+                    <th><strong>Stage Name </strong></th>
+                    <th><strong>Close Date</strong></th>
+                    <th><strong>Created Date </strong></th>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.opportunities}" var="opp">
+                    <tr>
+                        <td>{!opp.Name}</td>
+                        <td>{!opp.StageName}</td>
+                        <td><c:OpportunityListTimeAgo timeAgo="{!opp.CloseDate}"/></td>
+                        <td><c:OpportunityListTimeAgo timeAgo="{!opp.CreatedDate}"/></td>
+                    </tr>
+                </aura:iteration>
+            </tbody>
+        </table>
+    </div>
+</aura:component>
+
+({
+    doInit : function(component, event, helper) {
+        var action = component.get("c.getAllOpportnities");
+        //Set up the callback
+        action.setCallback(this, function(actionResult) {
+            component.set("v.opportunities", actionResult.getReturnValue());
+        });	
+        $A.enqueueAction(action);  
+        
+        
+    }
+})
+<aura:component >
+    <aura:attribute name="timeAgo" type="DateTime"/>
+    <aura:attribute name="ago" type="String"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <div>
+        {!v.ago}
+    </div>
+</aura:component>
+({
+      
+doInit : function(component, event, helper) {
+    var newDate =  component.get("v.timeAgo");
+    console.log('newDate'+newDate)
+    component.set("v.ago" ,new timeago().format(newDate));
+ }
+      
+})
+
+<aura:application >
+    <link href='/resource/bootstrap/bootstrap-sf1-0.1.0-beta.16/dist/css/bootstrap.css' rel="stylesheet"/>
+    <ltng:require scripts="{!$Resource.timeago}"/>
+    
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand">Opportunity Time Ago Example</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="row" >
+            <c:OpportunityList />
+        </div>
+    </div>
+    
+</aura:application>
+
+
+Salesforce Named Credentials :
+
+Manage RestAPI endpointUrl.
+Support Password Authentication and OAuth.
+
+HttpRequest req = new HttpRequest();
+req.setEndpoint(‘http://services.groupkt.com/country/get/all’);
+req.setMethod(‘GET’);
+String username = ‘username’;
+String password = ‘password’;
+Blob headerValue = Blob.valueOf(username + ‘:’ + password);
+String authorizationHeader = ‘BASIC ‘ + EncodingUtil.base64Encode(headerValue);
+req.setHeader(‘Authorization’, authorizationHeader);
+Http http = new Http();
+HttpResponse res = http.send(req);
+System.debug(‘====> result ==>’res.getBody());
+
+Setup -> Security Controls ->  Named Credentials
+Country_API
+http://services.groupkt.com/country/get/all
+Identity Type : Named Principle
+Authentiction Protocol : Password Authentication
+Username :
+Password :
+
+HttpRequest req = new HttpRequest();
+req.setEndpoint('callout:Country_API');
+req.setMethod('GET');
+Http http = new Http();
+HTTPResponse res = http.send(req); 
+System.debug('====>'+res.getBody());
+
+System.CalloutException: Unable to tunnel through proxy. Proxy returns "HTTP/1.0 503 Service Unavailable.
+
+Admin Made change  with in last 180 days is hold by SetupAuditTrail object.
+
+
+Action Link Templates :
+
+group of Actions that is going to be associated with the chatter feed
+
+SELECT id FROM ActionLinkGroupTemplate WHERE DeveloperName=’Complete_Survey’
+
+
+
+Mixed DML Exception :
+
+Inside Trigger Add User as GroupMembers After Insert
+
+Group  g = [select id FROM Group Where developername ='Internal Employee'];
+List<> recs = [];
+List<GroupMember> lstGroupMembers = new List<GroupMember> ();
+
+GroupMember gm = new GroupMember();
+gm.GroupId = g.id;
+gm.UserOrGroupId = UserInfo.getUserId();
+
+lstGroupMembers.add(gm);
+
+if(!Test.isRunningTest()){
+	insert lstGroupMembers;
+}
+
+System.runAs(user){
+	insert recGoneInvokeTrigger;
+}
+
+
+Platform Cache :
+

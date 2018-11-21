@@ -1,0 +1,184 @@
+/*
+	AURA ID
+ */
+	var cmps = component.find(auraid);
+	if(Array.isArray(cmps)){
+		//handle group of cmp with same auraid
+	}else if(cmp){
+		//handle single cmp
+	}else{
+		console.log('components founded');
+	}
+
+/*
+
+	FORCE EVENT
+ */
+	
+	navigate : function(eventname,params){
+		if(eventname){
+			var evt = $A.get(eventname);
+			if(evt){
+				if(params){
+					evt.setParams(params);
+				}else{
+					console.log('no param for '+eventname);
+				}
+				evt.fire();
+			}else{
+				console.log('no such event called '+eventname+' present');
+			}
+		}else{
+			console.log('wrong param passed to navigate method on navigation helper component');
+		}
+	}
+
+	helper.navigate(eventname,params);
+
+	//Close Quick Action eventname with no param
+	var eventname = "e.force:closeQuickAction";
+
+	<!--Create Record -->
+	<lightning:button label="{$Label.createContact}" onclick="{!c.handleClick}" />
+	<!--Edit Record -->
+	<lightning:button label="{!$label.c.editContact}" onclick="{!c.handleClick}" />
+	<!--Navigate To Component -->
+	<lightning:button label="{!$label.c.navtocmp}" onclick="{!c.handleClick}" />
+	<!--Navigate to an listview -->
+	<lightning:button label="{!$label.c.navtoListView}" onclick="{!c.handleClick}" />
+	<!--Navigate To Object Home -->
+	<lightning:button label="{!$label.c.navtoHome}" onclick="{!c.handleClick}" />
+	<!--Navigate To Related List-->
+	<lightning:button label="{!$label.c.navtoRelatedList}" onclick="{!c.handleClick}" />
+	<!--Navigate To SObject-->
+	<lightning:button label="{!$label.c.navigatetoSObject}" onclick="{!c.handleClick}" /> 
+	<!--Navigate To URL-->
+	<lightning:button label="{!$label.c.navigatetoURL}" onclick="{!c.handleClick}" /> 
+
+	<!-- Record Save -->
+	<force:recordEdit aura:id="edit" recordId="{!v.recordId}" />
+	<lightning:button label="{!$label.c.save}" onclick="{!c.handleClick}" /> 
+	let cmp = component.find("edit");
+	if(Array.isArray(cmp)){
+		console.log('more than one component name edit found');
+	}else if(cmp){
+		cmp.get("e.recordSave");
+		cmp.fire();
+	}else {
+		console.log('no such component name edit founded');
+	}
+
+	<aura:attribute name="saveState" type="String" default="UNSAVED" />
+	<aura:handler name="onSaveSuccess" event="force:recordSaveSuccess" action="{!c.handleSaveSuccess}"/>
+	Record save status: {!v.saveState}
+
+	handleSaveSuccess : function(component,event,helper){
+		component.set('v.saveState','SAVED');
+	}
+	<!--Reload all Data for view -->
+	refresh : function(component, event, helper) {
+		var eventname = 'e.force:refreshView';
+		helper.navigate(eventname);
+	},
+	toastMsg : {
+		var eventname = 'e.force:showToast';
+		var params ={
+				        "title": "Success!",
+				        "message": "The record has been updated successfully."
+				    };
+		helper.navigate(eventname,params);
+	}
+	handleClick : function(component,event){
+		var sourcecmp = event.getSource();
+		if(sourcecmp){
+			var cmpName = sourcecmp.get('v.label');
+			var eventname,params;
+			if(cmpName === Label.c.createContact){
+				eventname = "e.force:createRecord";
+				params = {"entityApiName": "Contact"};
+				helper.navigate(eventname,params);
+			}else if(cmpName === Label.c.editContact){
+				eventname = "e.force:editRecord";
+				params = {"recordId": component.get("v.contact.Id")};
+				helper.navigate(eventname,params);
+			}else if(cmpName === label.c.navtocmp){
+				eventname = "e.force:navigateToComponent";
+				params = {componentDef : "c:myComponent",
+						        componentAttributes: {
+						            contactName : component.get("v.contact.Name")
+						        }
+						    };
+				helper.navigate(eventname,params);
+			}else if(cmpName === label.c.navtoListView){
+				var action = component.get("c.getListViews");
+			    action.setCallback(this, function(response){
+			        var state = response.getState();
+			        if (state === "SUCCESS") {
+			            var listviews = response.getReturnValue();
+			            eventname ="e.force:navigateToList";
+			            params = {
+			                "listViewId": listviews[0].Id,
+			                "listViewName": null,
+			                "scope": "Contact"
+			            };
+			            helper.navigate(eventname,params);
+			        }
+			    });
+			    $A.enqueueAction(action);
+			}else if(cmpName === label.c.navtoHome){
+				eventname = "e.force:navigateToObjectHome";
+				params = {"scope": objectapiname};
+				helper.navigate(eventname,params);
+			}else if(cmpName === label.c.navtoRelatedList){
+				eventname = "e.force:navigateToRelatedList";
+				params = {
+							"relatedListId": "Cases",
+        					"parentRecordId": component.get("v.recordId")
+        				};
+				helper.navigate(eventname,params);
+			}else if(cmpName === label.c.navigatetoSObject){
+				eventname = "e.force:navigateToSObject";
+				params = {
+							"recordId" 		: component.get("v.recordId"),
+        					"slideDevName"	: "related"/"detail"/"chatter"
+        				};
+				helper.navigate(eventname,params);
+			}else if(cmpName === label.c.navigatetoURL){
+				eventname = "e.force:navigateToURL";
+				let url = "/006/o";
+				params = {
+							"url": url
+        				};
+				helper.navigate(eventname,params);
+			}else{
+				console.log('no action for '+cmpName);
+			}
+		}else{
+			console.log('no such component present '+sourcecmp);
+		}
+	}
+
+	@AuraEnabled
+	public static List<ListView> getListViews() {
+	    List<ListView> listviews =
+	        [SELECT Id, Name FROM ListView WHERE SobjectType = 'Contact'];
+
+	    // Perform isAccessible() check here
+	    return listviews;
+	}
+
+
+
+	css class :
+
+
+
+	grid : slds-gridoptional _reverse,_vertical-reverse,) slds-gutters (optional small...large)
+	12 column support.slds-col
+	colums width : slds-size_2-of-3
+	slds-order
+
+	hypernation : content need to be display in small screen.
+
+	Magnet : The magnet utilities are used to vertically attach adjacent card-like components.like card,pageheader,box.
+	

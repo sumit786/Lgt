@@ -1,0 +1,47 @@
+/*Screen Flow Distribution*/
+
+QFB > Flows  > New Flow 
+
+
+Display Screen ..
+
+
+. Add Flow in Lightning Page.(flow on your page)
+
+RecordPgae > Setting.EditPage > Add Flow Component in it. > Activate.
+
+. Add Flow as an action (Flow as action)
+
+Object Manager > ObjectName > Buttons, Links, and Actions. > New Action .
+
+. Add Flow to a utility Bar (Flow all over your org)
+
+QFB > App Manager > App > Edit  > Utility Items > Flow . Choose Res
+Pective Flow .
+
+Flow avaiable all over app. all pages.
+
+.Invoke flow on click on button 
+
+Object Manager > Object > Action and Custom Button
+
+/flow/Calculate_discounts?AccountID={!Opportunity.AccountId}&OpportunityID={!Opportunity.Id}
+
+Page Layouts > Buttons > Add Button 
+
+.Flow In App Page 
+Lightning App Builder > App Page > 
+
+
+Exception :
+Issue 1 :
+An unhandled fault has occurred in this flow.
+
+(Not able to retrieve record).
+Modify Flow with new version.
+
+Issue 2:
+Error element Collect_Usernames (FlowScreen).
+The flow failed to access the value for accountLoopVar.Rating because it hasn't been set or assigned.
+
+field name need to be added during retrival of record.

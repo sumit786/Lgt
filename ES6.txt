@@ -1,0 +1,241 @@
+/*ES6*/
+
+1.Difference between function and block scoping.
+
+    var out_var = 1;
+    let out_let = 2;
+
+    function func(isTrue){
+        if(isTrue){
+            var out_var = 3;
+            let out_let = 4;    
+            console.log(out_var);//3
+            console.log(out_let);//4
+        }
+        console.log(out_var);//3
+        console.log(out_let);//2
+    }
+
+    let,const does not get hoisted to top and allows obey block scope.
+    var declare outside module or function then it can not get access from inside of function.
+    let,const decalre outside function can be access over the code .
+    var is part of global object not let,const.
+    unlike let when try to use var before decalration not gone throw a referenceerror.
+    some more example to explain
+
+    let y = 1;
+    if(true){
+        var x = 2;
+        let y = 2;
+        console.log(x);//2
+        console.log(y);//2
+    }
+    console.log(x);//2
+    console.log(y);//1
+
+    var hoisted up .
+
+    var x;
+    let y = 1;
+    if(true){
+        x = 2;
+        let y = 2;
+        console.log(x);//2
+        console.log(y);//2
+    }
+    console.log(x);//2
+    console.log(y);//1
+
+    function func() {
+        let foo = 5;
+        if (true) {
+            let foo = 10; // shadows outer `foo`
+            console.log(foo); // 10
+        }
+        console.log(foo); // 5
+    }
+
+2.Object decalration in ES6
+
+    let firstname = 'sumit';
+    let lastname = 'panda';
+
+    let person = {firstname,lastname};
+    person;//{firstName: "John", lastName: "Doe"}
+
+3.Copy object
+
+    //copy property or passby value
+    let name = 'sumit';
+    let age = 25;
+    const obj1 = {name,age};
+    const obj2 = Object.assign({name: 'romil', rating: 5}, obj1);
+    console.log(obj2.name, obj2.rating);// expected output: 3 5
+    //copy property using spread operator
+    const obj3 = {...obj2};
+    const obj4 = {...obj1,...obj2};
+    //deepclone passby reference
+    let name = 'sumit';
+    let age = 25;
+    const obj1 = {name,age};
+    const obj2 =JSON.parse(JSON.stringify(obj1));
+
+4. Template literals
+    const obj2 = Object.assign({})
+    String with assign variable ${user} 
+
+
+5.Destructuring syntax :
+
+    let numbers = [1, 2, 3, 4]; 
+    //access the data through the variable names
+    let [one, two, three, four] = numbers;
+    console.log(one);//1 same as assigning let one = numbers[0],let two = numbers[2];let three = numbers[3];
+
+6. Arrow Syntax :
+
+    let muFunc = function(var1,var2){
+        return var1+var2;
+    }
+    
+    let myFunc = (var1,var2) => var1+var2;
+
+    .only need the curly braces when you have more than one expression and return keyword is required.
+
+    let myFunc = (var1,var2) => {
+        var1 = var1 || 0;
+        var2 = var2 || 0;
+        return var1+var2;
+    }
+
+    Rest Parameter:
+    more than one variable ... .
+
+    default parameters.(name='sumit') default value for name param is sumit.
+
+    function containsAll(haystack, ...needles) {
+        for (var needle of needles) {
+            if (haystack.indexOf(needle) === -1) {
+            return false;
+            }
+        }
+    return true;
+    }
+
+6. Spread syntax 
+    //rest param
+    myFunction(...iterableObj);
+    //join for array
+    var parts = ['shoulders', 'knees']; 
+    var lyrics = ['head', ...parts, 'and', 'toes']; // ["head", "shoulders", "knees", "and", "toes"]
+    //concat for array
+    var numLst = [0,1,2];
+    var lyrics = [...lyrics,...numLst];
+    //object cloning
+    let objClone = { ...obj };
+
+7. class in js
+
+    function Animal(name) {
+        this.name = name;
+    }
+        
+    Animal.prototype.printName = function() {
+        console.log(this.name);
+    }
+
+    let duck = new Animal('duck');
+    duck.printName();  // Displays "duck"  
+
+    class Animal {
+        constructor(name) {
+            this.name = name;
+        }  
+        printName() {
+            console.log(this.name);
+        }
+    }  
+
+    class is a function here typeof Animal ; //function uses prototypical structure.
+
+    class are two type base and dervied .
+        class Parent {
+            constructor(name) {
+                this.name = name;
+            }
+            
+            getName() {
+             return this.name;
+            }
+        } 
+        class Child extends Parent {
+            constructor(name) {
+                super(name);
+            }
+                    
+            getMessage() {
+                return 'Hello ' + super.getName();
+            }
+        }
+            
+        let someone = new Child('person');
+        console.log(someone.getMessage());     // Displays "Hello person"  
+        
+    static staticMethod() {
+        return 'static method has been called.';
+    }
+
+
+export statement : function, a variable, or a class—available somewhere.
+
+
+promise :
+
+var makeapromise = new promise(function(resolve,reject){
+
+    http req = new http();
+    ..
+    try{
+        req.send();
+        resolve({'some value'});
+    }catch(error){
+        reject('failed due to '+error.message);
+    }
+});
+
+makeapromise.then(function(value){
+    console.log(JSON.stringify(value));
+});
+momsPromise.catch(function(reason) {
+  console.log("Mom coudn't buy me the phone because ", reason);
+});
+momsPromise.finally(function(last){
+    console.log('alway executes');
+});
+
+
+
+Jasmine :
+
+describe function to create a test suite.
+it function to specify one or more specs (or tests).(positive/negative).
+
+Jasmine is a Behavior Driven Development testing framework for JavaScript. It does not rely on browsers
+
+
+IIFE :
+
+Restrict var scope.
+(
+    function(){
+        var tmp = 'rocky';
+        let temp = 'jenny';
+    }
+);
+
+
+Number.isFinite()
+Number.isSafeInteger(number)
+Number.MIN_SAFE_INTEGER
+Number.MAX_SAFE_INTEGER
+

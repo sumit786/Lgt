@@ -1,0 +1,25 @@
+/*Screen Flow Distribution*/
+
+QFB > Flows  > New Flow 
+
+
+Display Screen ..
+
+
+. Add Flow in Lightning Page.(flow on your page)
+
+RecordPgae > Setting.EditPage > Add Flow Component in it. > Activate.
+
+. Add Flow as an action (Flow as action)
+
+Object Manager > ObjectName > Buttons, Links, and Actions. > New Action .
+
+. Add Flow to a utility Bar (Flow all over your org)
+
+QFB > App Manager > App > Edit  > Utility Items > Flow . Choose Res
+Pective Flow .
+
+Flow avaiable all over app. all pages.
+
+
+/*Automate Your Business Processes with Lightning Flow */

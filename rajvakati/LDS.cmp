@@ -1,0 +1,212 @@
+vf page																						Lightning
+
+.MVC structure																			.MCCV 
+.ViewState
+.Data Security by Salesforce
+.Dynamic Rendering
+.Complex UI requirement can be handle by JS.(levargae angualrjs,react,nodejs)
+
+visualforce page 
+(Model : standard or custom object
+view : vf page /Lightning Component
+Controller : apex (server-side) / js (client-side)
+)
+In visualforce page view state holds the transaction data with limit 135kb.
+No view state concept as it hosted on client side browser so depends upon your browser.
+Rendering Handle by salesforce when its comes to lightning when want to access dom then can be manupulated using predefine method with JS.
+
+
+Lightnng Data Service :
+
+Sync. issue. Data Difference
+No Apex For Basic CRUD 
+force:recordData communicate with server and manage cache.
+
+Must Specify :
+force:hasRecordId  v.recordId
+Id = "{!v.recordId}"
+
+fields/Layout
+
+targetRecord  : populated with current record
+targetFields  : containing the fields relevant to the requested layoutType or the fields listed in the fields attribute. targetFields is populated with a simplified view of the loaded record.
+
+mode : VIEW/EDIT
+
+recordUpdated = "{!c.handleRecordUpdated}"
+
+({
+    handleRecordUpdated: function(component, event, helper) {
+        var eventParams = event.getParams();
+        if(eventParams.changeType === "LOADED") {
+           // record is loaded (render other component which needs record data value)
+            console.log("Record is loaded successfully.");
+        } else if(eventParams.changeType === "CHANGED") {
+            // record is changed
+        } else if(eventParams.changeType === "REMOVED") {
+            // record is deleted
+        } else if(eventParams.changeType === "ERROR") {
+            // there’s an error while loading, saving, or deleting the record
+        }
+    }
+})
+
+
+access field in UI
+
+<lightning:input label="" value="{!v.targetRecord.fields.fieldName/v.targetFields.fieldName}" />
+
+mode="EDIT"
+<lightning:button label="Save Account" variant="brand" onclick="{!c.handleSaveRecord}" />
+
+handleSaveRecord : function(cmp,evt,helper){
+	
+	let forceData = cmp.find('auraid');
+	if(!forceData){
+		forceData.saveRecord($A.getCallback(function(saveResult) {
+            // NOTE: If you want a specific behavior(an action or UI behavior) when this action is successful 
+            // then handle that in a callback (generic logic when record is changed should be handled in recordUpdated event handler)
+            if (saveResult.state === "SUCCESS" || saveResult.state === "DRAFT") {
+                // handle component related logic in event handler
+            } else if (saveResult.state === "INCOMPLETE") {
+                console.log("User is offline, device doesn't support drafts.");
+            } else if (saveResult.state === "ERROR") {
+                console.log('Problem saving record, error: ' + JSON.stringify(saveResult.error));
+            } else {
+                console.log('Unknown problem, state: ' + saveResult.state + ', error: ' + JSON.stringify(saveResult.error));
+            }
+        }));
+	}
+}
+
+let forceData = cmp.find('auraid');
+if(!forceData){
+	forceData.find("contactRecordCreator").getNewRecord(
+        "Contact", // sObject type (objectApiName)
+        null,      // recordTypeId
+        false,     // skip cache?
+        $A.getCallback(function() {
+            var rec = component.get("v.newContact");
+            var error = component.get("v.newContactError");
+            if(error || (rec === null)) {
+                console.log("Error initializing record template: " + error);
+                return;
+            }
+            console.log("Record template initialized: " + rec.sobjectType);
+        })
+    );
+}
+
+handleDeleteRecord: function(cmp,evt,helper){
+		component.find("recordHandler").deleteRecord($A.getCallback(function(deleteResult) {
+            // NOTE: If you want a specific behavior(an action or UI behavior) when this action is successful 
+            // then handle that in a callback (generic logic when record is changed should be handled in recordUpdated event handler)
+            if (deleteResult.state === "SUCCESS" || deleteResult.state === "DRAFT") {
+                // record is deleted
+                console.log("Record is deleted.");
+            } else if (deleteResult.state === "INCOMPLETE") {
+                console.log("User is offline, device doesn't support drafts.");
+            } else if (deleteResult.state === "ERROR") {
+                console.log('Problem deleting record, error: ' + JSON.stringify(deleteResult.error));
+            } else {
+                console.log('Unknown problem, state: ' + deleteResult.state + ', error: ' + JSON.stringify(deleteResult.error));
+            }
+        }));
+}
+
+
+handleCancel : function(cmp,evt,helper){
+	$A.get("e.force:closeQuickAction").fire();
+}
+
+Consideration :
+1.
+Prevent Data Overriding.
+else if(eventParams.changeType === "CHANGED"){
+	component.find("forceRecord").reloadRecord();
+}
+2.
+Not supported for communityPages.
+
+
+saveRecord and DeleteRecord Receive SaveRecordResult as argument
+SaveRecordResult have below attribute
+state : SUCCESS,DRAFT(offline),INCOMPLETE(no offline support),ERROR(failed)
+recordId,error,entityLabel(object label),objectApiName(object apiname)
+
+
+recordUpdated method invoke for record loading,creating,editing,deleting
+
+var eventParams = event.getParams();
+if(eventParams.changeType === "LOADED") {
+	
+}else if(eventParams.changeType === "CHANGED") {
+
+}else if(eventParams.changeType === "REMOVED") {
+
+}else if(eventParams.changeType === "ERROR") {
+
+}
+
+
+<aura:component implements="force:lightningQuickActionWithoutHeader,force:hasRecordId">
+
+    <aura:attribute name="account" type="Object"/>
+    <aura:attribute name="simpleAccount" type="Object"/>
+    <aura:attribute name="accountError" type="String"/>
+    <force:recordData aura:id="accountRecordLoader"
+        recordId="{!v.recordId}"
+        fields="Name,BillingCity,BillingState"
+        targetRecord="{!v.account}"
+        targetFields="{!v.simpleAccount}"
+        targetError="{!v.accountError}"
+    />
+
+    <aura:attribute name="newContact" type="Object" access="private"/>
+    <aura:attribute name="simpleNewContact" type="Object" access="private"/>
+    <aura:attribute name="newContactError" type="String" access="private"/>
+    <force:recordData aura:id="contactRecordCreator"
+        layoutType="FULL"
+        targetRecord="{!v.newContact}"
+        targetFields="{!v.simpleNewContact}"
+        targetError="{!v.newContactError}"
+        />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+    <!-- Display a header with details about the account -->
+    <div class="slds-page-header" role="banner">
+        <p class="slds-text-heading_label">{!v.simpleAccount.Name}</p>
+        <h1 class="slds-page-header__title slds-m-right_small
+            slds-truncate slds-align-left">Create New Contact</h1>
+    </div>
+
+    <!-- Display Lightning Data Service errors, if any -->
+    <aura:if isTrue="{!not(empty(v.accountError))}">
+        <div class="recordError">
+            <ui:message title="Error" severity="error" closable="true">
+                {!v.accountError}
+            </ui:message>
+        </div>
+    </aura:if>
+    <aura:if isTrue="{!not(empty(v.newContactError))}">
+        <div class="recordError">
+            <ui:message title="Error" severity="error" closable="true">
+                {!v.newContactError}
+            </ui:message>
+        </div>
+    </aura:if>
+
+    <!-- Display the new contact form -->
+    <lightning:input aura:id="contactField" name="firstName" label="First Name" value="{!v.simpleNewContact.FirstName}" required="true"/>
+    <lightning:input aura:id="contactField" name="lastname" label="Last Name" value="{!v.simpleNewContact.LastName}" required="true"/>
+    <lightning:input aura:id="contactField" name="title" label="Title" value="{!v.simpleNewContact.Title}" />
+    <lightning:input aura:id="contactField" type="phone" name="phone" label="Phone Number" pattern="^(1?(-?\d{3})-?)?(\d{3})(-?\d{4})$"
+        messageWhenPatternMismatch="The phone number must contain 7, 10, or 11 digits. Hyphens are optional." value="{!v.simpleNewContact.Phone}" required="true"/>
+    
+    <lightning:input aura:id="contactField" type="email" name="email" label="Email" value="{!v.simpleNewContact.Email}" />
+    <lightning:button label="Cancel" onclick="{!c.handleCancel}" class="slds-m-top_medium" />
+    <lightning:button label="Save Contact" onclick="{!c.handleSaveContact}" variant="brand" class="slds-m-top_medium"/>
+     
+    
+</aura:component>

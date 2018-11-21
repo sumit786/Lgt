@@ -1,0 +1,141 @@
+/*public class TestDataGeneraion {
+	public static List<sObject> generatesObjects(String sObjType, Integer recNum, Map<String, Object> fieldsValueByName) {
+		List<sObject> sObjList = new List<sObject>();
+		Map<String,Schema.SObjectType> globalDescribeData = Schema.getGlobalDescribe();
+		Schema.sObjectType sObjectType = globalDescribeData.get(sObjType);
+		Map<String, SObjectField> fieldsMap = sObjectType.getDescribe().fields.getMap();
+		for (Integer i = 1; i <= recNum; i++){
+			//Create new record of a specified objType
+			sObject sObj = sObjectType.newSObject();
+			//Populate required fields
+			for (String field : fieldsValueByName.keySet()){
+				sObj.put(field, fieldsValueByName.get(field));
+			}
+			sObjList.add(sObj);
+		}
+		return sObjList;
+	}
+	public static String generateJson(Boolean hasNull) {
+
+		List<Account> accounts = [SELECT Id, Name, BillingCity, BillingCountry, BillingStreet, BillingPostalCode FROM Account where CreatedDate >= TODAY];
+		AccountContainer container = new AccountContainer();
+		if (!accounts.isEmpty()) {
+			container.accounts = accounts;
+		}
+		String jsonText = JSON.serialize(container, hasNull);
+		System.debug(‘jsonText =’ + jsonText);
+		return jsonText;
+	}
+}
+
+List<Account> accounts = new List<Account>();
+
+Map<String, Object> fieldsValueByName = new Map <String, Object>();
+fieldsValueByName.put(‘Name’, ‘TestAcc’);
+fieldsValueByName.put(‘BillingCity’, ‘Amsterdam’);
+fieldsValueByName.put(‘BillingCountry’, ‘Netherlands’);
+fieldsValueByName.put(‘BillingStreet’, ‘Amstel 1’);
+accounts = (List<Account>)TestDataGeneration.generatesObjects(‘Account’, 1, fieldsValueByName);
+insert accounts;
+String jsonText = Summer16.generateJson(false);
+
+//JSON Stirng :
+
+{"Status":"Success","FirstName":"John","LastName":"Smith","Email":"jsmith@somewhere.com","Phone":"703.555.1212″}
+
+public class Apex2Json {
+	
+	public string Status{get;set;}
+	public string FirstName{get;set;}
+	public string LastName{get;set;}
+	public string Email{get;set;}
+	public string Phone{get;set;}
+
+	public Apex2Json(contact con){
+		this.Status = con.Status;
+		this.FirstName = con.FirstName;
+		this.LastName = con.LastName;
+		this.Email = con.Email;
+		this.Phone = con.Phone;
+	}
+
+}
+
+contact cont = new contact();
+con.Status = "Success";
+con.FirstName = "John";
+con.LastName = "Smith";
+con.Email = "jsmith@somewhere.com";
+con.Phone = "703.555.1212";
+Apex2Json a2j = new Apex2Json(con);
+String jsonBody = JSON.serialize(a2j);
+*/
+
+List<Account> acct = [select id,name,createdDate,user.name,(select lastname FROM contacts) FROM Account WHERE in (select accountId From contact WHERE accountId!=null) limit 5 ];
+
+
+
+List<Account> acct = [select id,name,createdDate,owner.name,(select lastname FROM contacts) FROM Account WHERE id in (select accountId From contact WHERE accountId!=null) limit 5 ];
+string jsonBody = JSON.serialize(acct);
+system.debug('jsonbody : '+jsonBody);
+
+JSON.serialize : cause addition of unneccessary data. type,url
+
+ [{"attributes":{"type":"Account","url":"/services/data/v44.0/sobjects/Account/0017F00000jSW95QAG"},"Id":"0017F00000jSW95QAG","Name":"TestTimezoneon50clockcreation","CreatedDate":"2018-05-23T11:36:33.000+0000","OwnerId":"0057F000003DHa5QAG","Contacts":{"totalSize":3,"done":true,"records":[{"attributes":{"type":"Contact","url":"/services/data/v44.0/sobjects/Contact/0037F00000k9BvoQAE"},"AccountId":"0017F00000jSW95QAG","Id":"0037F00000k9BvoQAE","LastName":"Roy"},{"attributes":{"type":"Contact","url":"/services/data/v44.0/sobjects/Contact/0037F00000k9BvpQAE"},"AccountId":"0017F00000jSW95QAG","Id":"0037F00000k9BvpQAE","LastName":"Roy"},{"attributes":{"type":"Contact","url":"/services/data/v44.0/sobjects/Contact/0037F00000k9BzMQAU"},"AccountId":"0017F00000jSW95QAG","Id":"0037F00000k9BzMQAU","LastName":"Roy"}]},"Owner":{"attributes":{"type":"User","url":"/services/data/v44.0/sobjects/User/0057F000003DHa5QAG"},"Id":"0057F000003DHa5QAG","Name":"sumit panda"}},{"attributes":{"type":"Account","url":"/services/data/v44.0/sobjects/Account/0017F00000f0gGDQAY"},"Id":"0017F00000f0gGDQAY","Name":"Edge Communications","CreatedDate":"2018-04-18T04:50:24.000+0000","OwnerId":"0057F000003DHa5QAG","Contacts":{"totalSize":2,"done":true,"records":[{"attributes":{"type":"Contact","url":"/services/data/v44.0/sobjects/Contact/0037F00000XUxOdQAL"},"AccountId":"0017F00000f0gGDQAY","Id":"0037F00000XUxOdQAL","LastName":"Gonzalez"},{"attributes":{"type":"Contact","url":"/services/data/v44.0/sobjects/Contact/0037F00000XUxOeQAL"},"AccountId":"0017F00000f0gGDQAY","Id":"0037F00000XUxOeQAL","LastName":"Forbes"}]},"Owner":{"attributes":{"type":"User","url":"/services/data/v44.0/sobjects/User/0057F000003DHa5QAG"},"Id":"0057F000003DHa5QAG","Name":"sumit panda"}},{"attributes":{"type":"Account","url":"/services/data/v44.0/sobjects/Account/0017F00000f0gGNQAY"},"Id":"0017F00000f0gGNQAY","Name":"GenePoint","CreatedDate":"2018-04-18T04:50:24.000+0000","OwnerId":"0057F000003DHa5QAG","Contacts":{"totalSize":1,"done":true,"records":[{"attributes":{"type":"Contact","url":"/services/data/v44.0/sobjects/Contact/0037F00000XUxOtQAL"},"AccountId":"0017F00000f0gGNQAY","Id":"0037F00000XUxOtQAL","LastName":"Frank"}]},"Owner":{"attributes":{"type":"User","url":"/services/data/v44.0/sobjects/User/0057F000003DHa5QAG"},"Id":"0057F000003DHa5QAG","Name":"sumit panda"}},{"attributes":{"type":"Account","url":"/services/data/v44.0/sobjects/Account/0017F00001COAF9QAP"},"Id":"0017F00001COAF9QAP","Name":"Get Cloudy West","CreatedDate":"2018-09-25T12:05:44.000+0000","OwnerId":"0057F000003DHa5QAG","Contacts":{"totalSize":1,"done":true,"records":[{"attributes":{"type":"Contact","url":"/services/data/v44.0/sobjects/Contact/0037F00000wFm0jQAC"},"AccountId":"0017F00001COAF9QAP","Id":"0037F00000wFm0jQAC","LastName":"Bosu"}]},"Owner":{"attributes":{"type":"User","url":"/services/data/v44.0/sobjects/User/0057F000003DHa5QAG"},"Id":"0057F000003DHa5QAG","Name":"sumit panda"}},{"attributes":{"type":"Account","url":"/services/data/v44.0/sobjects/Account/0017F000017yO1nQAE"},"Id":"0017F000017yO1nQAE","Name":"Hats, Inc.","CreatedDate":"2018-09-14T04:46:39.000+0000","OwnerId":"0057F000003DHa5QAG","Contacts":{"totalSize":1,"done":true,"records":[{"attributes":{"type":"Contact","url":"/services/data/v44.0/sobjects/Contact/0037F00000uhFXUQA2"},"AccountId":"0017F000017yO1nQAE","Id":"0037F00000uhFXUQA2","LastName":"chan"}]},"Owner":{"attributes":{"type":"User","url":"/services/data/v44.0/sobjects/User/0057F000003DHa5QAG"},"Id":"0057F000003DHa5QAG","Name":"sumit panda"}}]
+
+
+
+ public class AccountToJsonGenerator {
+    
+    public static string getSeralizeData(List<Account> accLst){
+        List<AccountJsonDataGenerator> ajdgs = new List<AccountJsonDataGenerator>();
+        AccountJsonDataGenerator ajdg ;
+        for(Account acc : accLst){
+            ajdg =new AccountJsonDataGenerator(acc);
+            ajdgs.add(ajdg);
+        }
+        return JSON.serialize(ajdgs);
+    }
+
+    public class AccountJsonDataGenerator {
+        public string id{get;set;}
+        public string name{get;set;}
+        public DateTime createdDate{get;set;}
+        public UserJsonDataGenerator userInfo{get;set;}
+        public List<ContactJsonDataGenerator> contactsInfo {get;set;}
+        public AccountJsonDataGenerator(Account acc){
+            this.id = acc.id;
+            this.name = acc.name;
+            this.userInfo = new UserJsonDataGenerator(acc.owner);
+            contactsInfo = new List<ContactJsonDataGenerator>();
+            for(contact con : acc.contacts){
+            	contactsInfo.add(new ContactJsonDataGenerator(con));
+            }
+        }
+    }
+
+    public class UserJsonDataGenerator {
+        public String name{get;set;}
+        public UserJsonDataGenerator(User currUser){
+            this.name = currUser.name;
+        }
+    }
+
+    public class ContactJsonDataGenerator {
+        public string lastname{get;set;}
+        public ContactJsonDataGenerator(Contact con){
+            this.lastname = con.LastName;
+        }
+    }
+    
+}
+
+List<Account> acct = [select id,name,createdDate,owner.name,(select lastname FROM contacts) FROM Account WHERE id in (select accountId From contact WHERE accountId!=null) limit 5 ];
+string jsonBody = AccountToJsonGenerator.getSeralizeData(acct);
+system.debug('jsonbody : '+jsonBody);
+
+[{"userInfo":{"name":"sumit panda"},"name":"TestTimezoneon50clockcreation","id":"0017F00000jSW95QAG","createdDate":null,"contactsInfo":[{"lastname":"Roy"},{"lastname":"Roy"},{"lastname":"Roy"}]},
+{"userInfo":{"name":"sumit panda"},"name":"Edge Communications","id":"0017F00000f0gGDQAY","createdDate":null,"contactsInfo":[{"lastname":"Gonzalez"},{"lastname":"Forbes"}]},
+{"userInfo":{"name":"sumit panda"},"name":"GenePoint","id":"0017F00000f0gGNQAY","createdDate":null,"contactsInfo":[{"lastname":"Frank"}]},
+{"userInfo":{"name":"sumit panda"},"name":"Get Cloudy West","id":"0017F00001COAF9QAP","createdDate":null,"contactsInfo":[{"lastname":"Bosu"}]},
+{"userInfo":{"name":"sumit panda"},"name":"Hats, Inc.","id":"0017F000017yO1nQAE","createdDate":null,"contactsInfo":[{"lastname":"chan"}]}]

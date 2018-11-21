@@ -1,0 +1,125 @@
+Build a Custom Theme Layout Component for Lightning Communities
+
+Create a Basic Community :
+
+Communities Settings > Enable . Enter a unique name > Check Availability.>save
+
+All Community > New Community > Select Appropriate Template >CloudKicksTheme
+
+<aura:component implements="forceCommunity:themeLayout">
+    <aura:attribute name="search" type="Aura.Component[]"/>
+    <aura:attribute name="sidebarFooter" type="Aura.Component[]"/>
+    <div class="slds-grid slds-grid--align-center">
+        <div class="slds-col">
+            <div class="slds-grid slds-grid--vertical">
+                <div class="slds-col">
+                    <div class="logoContainer"></div>
+                </div>
+                <div class="slds-col">
+                    {!v.search}
+                </div>
+                <div class="slds-col">   
+                <!-- placeholder for navigation -->
+                </div>
+                <div class="slds-col">
+                    {!v.sidebarFooter}
+                </div>
+            </div>
+        </div>
+        <div class="slds-col content">
+            {!v.body}
+        </div>
+    </div>
+</aura:component>
+
+.THIS .logoContainer {
+    background-image: t('url(' + brandLogoImage  + ')');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    z-index: 99;
+    cursor: pointer;
+    position: relative;
+    max-width: 100%;
+    max-height: 52px;
+    display: block;
+    outline: 0;
+    height: 50px;
+    margin-top: 10px;
+}
+
+Community > Builder  > Theme > Images > company logo
+File > New > defaultToken
+
+<aura:tokens extends="forceCommunity:base">
+</aura:tokens>
+
+Lightning Component > verticalNav >
+forceCommunity:navigationMenuBase component gives the new component automatic access to all the navigation
+menuItems, which is defined in the extended abstract component
+
+(home and topic display)
+
+<!--verticalNav-->
+<aura:component extends="forceCommunity:navigationMenuBase">
+   <ul>
+       <aura:iteration items="{!v.menuItems}" var="item">
+           <li>{!item.label}</li>
+       </aura:iteration>
+   </ul>
+</aura:component>
+<!--replace-->
+<aura:component extends="forceCommunity:navigationMenuBase">
+   <div class="slds-grid slds-grid--vertical slds-navigation-list--vertical">
+       <ul onclick="{!c.onClick}">
+           <aura:iteration items="{!v.menuItems}" var="item">
+               <li class="{!item.active ? 'slds-is-active' : ''}">
+                   <a href="javascript:void(0);" data-menu-item-id="{!item.id}" class="slds-navigation-list--vertical__action slds-text-link--reset">
+                       {!item.label}
+                   </a>
+               </li>
+           </aura:iteration>
+       </ul>
+   </div>
+</aura:component>
+
+<!--customSearch-->
+<aura:component implements="forceCommunity:searchInterface" controller="CustomSearchController">
+    <aura:attribute name="searchText" type="String" default=""/>
+    <div class="slds-form-element slds-lookup" data-select="single">
+      <div class="slds-form-element__control">
+        <div class="slds-input-has-icon slds-input-has-icon--right">
+          <lightning:buttonIcon iconName="utility:search" variant="bare" onclick="{! c.handleClick }" alternativeText="Search" class="slds-input__icon" />
+          <ui:inputText value="{!v.searchText}" class="slds-lookup__search-input slds-input" placeholder="Search" />
+        </div>
+      </div>
+    </div>
+</aura:component>
+
+
+public class CustomSearchController {
+    @AuraEnabled
+    public static List<String> searchForIds(String searchText) {
+      return new List<String>{searchText};
+    }
+}
+
+
+Community :
+
+Portal Account have no role. Solution : (Assign Account Owner a Role)
+
+Administator > Members > Add Profiles.
+Publish
+Top cornor button > administatrion > Active ok
+
+
+
+Share CRM Data with Your Partners 
+
+QFB > Sharing Settings > Enable External Sharing Model
+Opportunity and Account and Contract objects
+Default Internal Access to Public Read Only
+Default External Access to Private
+
+Assign Roles to Users.
