@@ -87,3 +87,53 @@
         </div>
     </div>
 </aura:component>
+
+<!--
+	css class :
+
+	alignment 	: slds-align_absolute-center
+	border 		: slds-border_bottom/left/right/top
+	box 		: slds-box
+	float 		: slds-float_right,slds-float_left
+	grid 		: slds-gridoptional _reverse,_vertical-reverse,) slds-gutters (optional small...large)
+		12 column support.slds-col
+		colums width : slds-size_2-of-3
+		slds-order
+
+	hypernation : content need to be display in small screen.
+
+	Magnet 		: The magnet utilities are used to vertically attach adjacent card-like components.like card,pageheader,box.
+	Margin		:  
+	Media Object: small identity type image with info .
+	Name value list : dl and dt
+	Padding : adjusting whitespace
+	.classname : search class on top level
+	 .classname :search class in nested level
+	<div class="red">
+	    Hello, HTML!
+	</div>
+
+	//nospace between htmltag and .THIS more priority then classname
+	div.THIS {
+		background-color: red;
+	}
+	.THIS.red {
+		background-color: green;
+	}
+	.red.THIS {
+		background-color: green;	
+	}
+
+	<div>
+		<div class="red">
+			Hello,innerHtml
+		</div>
+	</div>
+
+	.THIS div{
+		background-color: red;
+	}
+	.THIS .red{
+		background-color: green;
+	}
+	-->
