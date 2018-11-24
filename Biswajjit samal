@@ -1,0 +1,719 @@
+Biswajjit samal :
+
+//delete permanently
+delete rec;
+Database.emptyRecycleBin(rec.id);
+
+//custom setting in js code.
+var url = "{!$Setup.TestCustomeSet__c.url__c}";
+
+//trigger for avoid duplicate phone number $Label.DuplicatePhonenumber : 'An Account Already Exist With '+acc.phone
+
+trigger MyAccountTrg on Account(before insert,before update) {
+	AccountTrgHelper.avoidDuplicatePhoneNumber(trigger.new,trigger.oldMap);
+}
+
+public inherited sharing AccountTrgHelper {
+	public static void avoidDuplicatePhoneNumber(List<Account> accLst,Map<> oldAccMap){
+		if(accLst.isEmpty())
+			return ;
+
+		Map<string,Account> phonenumbers = new Map<string,Account>();
+		for(Account acc : accLst){
+			if(String.isNotBlank(acc.phone)){
+				if(phonenumbers.contains(acc.phone)){
+					acc.addError(System.Label.DuplicatePhonenumber);
+				}else{
+					phonenumbers.put(acc.phone);
+				}
+			}
+		}
+
+		if(phonenumbers.isEmpty())
+			return;
+
+		for(Account acc : [select id,phone FROM Account WHERE phone
+		 IN : phonenumbers.keySet()]){
+			phonenumbers.get(acc.phone).addError(System.Label.DuplicatePhonenumber);
+		}	
+	}
+}
+
+@isTest
+class MyAccountTrgTest{
+	...
+	try{
+		insert accLst;
+	}catch(System.Exception exp){
+		System.assert(exp.getMessage().contains(System.Label.DuplicatePhonenumber),'does not contains '+System.Label.DuplicatePhonenumber);
+	}
+}
+
+//find all user below and above role hierachy BS_SubOrdinateUsers
+
+public inheirted sharing class BS_SubOrdinateUsers {
+	
+	public Map<Id,User> getAllUsers(){
+		return new Map<Id,User>([select id,name FROM User]);
+	}
+
+	public static Set<Id> getAllSubRoleIds(Id userId){
+		//get user profileId
+		id profileId = [select UserRoleId FROM User WHERE id=: userId];
+		//get all 
+	}
+}
+
+
+//query note,event,task from objecttype
+
+select id FROM Task/Event WHERE who/what.type = "everything except/lead,contact"
+
+select id,fields FROM Note WHERE parent.Type = 'Opportunity'
+
+//get all unique values from group of values
+
+Set<Object> uniqueValues = new Set<Object>(accLst);
+
+//new line in custom label <br/>
+
+//sosl
+
+List<List <sObject>> searchList = [FIND :searchStr IN ALL FIELDS RETURNING  Account (Id,Name,Type), Contact(Name,Email)];
+List<Account> accounts = new List<Account>();
+List<contact> contacts = new List<contact>();
+for(List <sObject> sLst : searchList){
+	if(sLst instanceOf Account){
+		accounts = (List<Account>)sLst;
+	}
+	if(sLst instanceOf Contact){
+		contacts = (List<contact>)sLst;
+	}
+}
+
+//get days in a month
+
+Integer = Date.daysInMonth(System.now().getYear(),System.now().getMonth());
+
+
+//get all object names   
+
+List<SelectOption> objNames = new List<SelectOption>();
+objNames.add(new SelectOption('','-- Select --'));
+for(Schema.SObjectType obj : Schema.getGlobalDescribe().values()){
+	objNames.add(new SelectOption(obj.getDescribe().getName(),obj.getDescribe().getLabel()));
+}
+
+//passing variable from apex to javascript
+function onCompleteMethod() {
+    alert('{!message}')
+}
+<apex:commandButton onclick="afHelloWorld();" oncomplete="onCompleteMethod()" value="Click me"/>
+public String message {get;set;}
+     
+public pageReference HelloWorld() {
+    message = 'Hello World!!';
+    return null;
+}  
+
+//find if array contains speciifc string in javascript lst.indexOf(ele)
+
+var listFruits = ["Apple", "Orange", "Banana"];
+var isPresent = listFruits.indexOf("Orange") > -1; 
+
+
+//display standard help text in visualforce page
+
+<span>{!$ObjectType.Contact.fields.AccountId.inlineHelpText}</span>
+
+
+//disable copy and paste in visulaforce page
+
+DisableRightClick :
+if(e.button === 2){alert("Right Clicking not allowed!");}
+DisableCopyPaste :
+function DisableCtrlKey(e){
+    var code = (document.all) ? event.keyCode:e.which;
+    if (parseInt(code) === 17){
+        alert("Please re-type your email address");           
+    }   
+}
+
+<apex:inputtext value="{!Contact.Email}" label="Re-Type Email Id" onkeydown="DisableCtrlKey(event)"/>  
+
+//how make field mandatory in SFDC
+
+.creation
+.pagelayout
+.validation rule
+.before trigger
+
+//check total number of record per object in salesforce.
+ Storage Usage
+
+//dml operation on visualforce page load
+<apex:page controller="SampleController" action="{!createAccount}">
+
+ public PageReference createAccount(){
+ 	id recId = ApexPage.currentPage().getParameters().get('recId');
+ 	if(String.isNotBlank(recId)){
+ 		VfPage_Visit__c visitInfo = new VfPage_Visit__c();
+ 		visitInfo.recId__c = recId;
+ 		visitInfo.createdDate__c = system.now();
+ 		insert visitInfo;
+ 	}
+ 	return null;	
+ }
+
+//get ip address in SFDC
+public string IPAddress {get;set;}
+     
+public IPAddressController() {
+     
+    IPAddress = ApexPages.currentPage().getHeaders().get('True-Client-IP');
+    //Get IP address when no caching (sandbox, dev, secure urls)
+    if (String.isBlank(IPAddress)) {
+        IPAddress = ApexPages.currentPage().getHeaders().get('X-Salesforce-SIP');
+    }  
+    if (String.isBlank(IPAddress)) {
+        IPAddress = ApexPages.currentPage().getHeaders().get('X-Forwarded-For');
+    } 
+}
+
+//passing parametrs from commandbutton
+
+<apex:commandButton/commandLink name="pass parmas" action="{!fullname}" reRender="panelOne">
+	<apex:param name="firstName" value="{!Contact.FirstName}" assignTo="{!firstName}"/>
+    <apex:param name="lastName" value="{!Contact.LastName}" assignTo="{!lastName}"/>
+</apex:commandButton/commandLink>
+<apex:outputPanel id="panelOne" render="finalvalue == null">
+	{!finalvalue}
+</apex:outputPanel>
+
+public String firstName{get;set;}
+public String lastName{get;set;}
+public String fullname{get;set;}
+public PageReferece fullname(){
+	 fullname = firstName + lastName;
+	 return null;
+}
+
+
+public class BS_Security {
+    public static string encryptData(String password){
+        
+        //convert to blob
+        Blob pwd = Blob.valueOf(password);
+        //Generate AES key
+        Blob cryptoValue = Crypto.generateAesKey(256);
+        //Encrypt Data 
+        Blob encryptPassword = Crypto.encryptWithManagedIV('AES256', cryptoValue, pwd);
+        
+        return EncodingUtil.base64Encode(encryptPassword);
+    }
+    public static string decryptData(string encryptPassword){
+        
+        //convert to blob
+        Blob encryptPasswordInBlob = EncodingUtil.base64Decode(encryptPassword);
+        //Generate AES key
+        Blob cryptoValue = Crypto.generateAesKey(256);
+        //Decrypt Data
+        Blob decryptedData = Crypto.decryptWithManagedIV('AES256',cryptoValue,encryptPasswordInBlob);
+        
+        return '';//String.valueOf(decryptedData);
+    }
+}
+//System.InvalidParameterValueException: Invalid initialization vector. Must be 16 bytes
+//cipher text is less than 16 bytes
+
+solution instead of valueof use 
+String encodedString = EncodingUtil.base64Encode(encryptedData);
+Blob decodedData     = EncodingUtil.base64Decode(encodedString);
+
+//System.SecurityException: Given final block not properly padded 
+
+Blob key = Crypto.generateAesKey(256); //generate a random key each time
+
+public class BS_Security {
+    //Generate AES key
+    static Blob cryptoValue = Crypto.generateAesKey(256);
+    public static string encryptData(String password){
+        
+        //convert to blob
+        Blob pwd = Blob.valueOf(password);
+        
+        //Encrypt Data 
+        Blob encryptPassword = Crypto.encryptWithManagedIV('AES256', cryptoValue, pwd);
+        String base64EncryptedString = EncodingUtil.base64Encode(encryptPassword);
+        return base64EncryptedString;
+    }
+    public static string decryptData(string encryptPassword){
+        
+        //convert to blob
+        Blob encryptPasswordInBlob = EncodingUtil.base64Decode(encryptPassword);
+        
+        //Decrypt Data
+        Blob decryptedData = Crypto.decryptWithManagedIV('AES256',cryptoValue,encryptPasswordInBlob);
+        String decryptedString= decryptedData.toString();
+        return decryptedString;//String.valueOf(decryptedData);
+    }
+    //send email all user to a public group (no support for user inside group)
+    
+    public class NoSuchGroupException extends Exception {}
+    public class NoUserInGroupException extends Exception {}
+    public class NoUserOrGroupInGroupException extends Exception {}
+    public class NoEmailException extends Exception {}
+    public List<string> collectEmailFromPublicGroup(string publicGroupName){
+        List<Group> gps = [SELECT id,(SELECT UserOrGroupId FROM GroupMembers) FROM Group WHERE Name =: publicGroupName];
+        if(gps.isEmpty()){
+            throw new NoSuchGroupException('No Such group name '+publicGroupName+'exist');
+        }
+        Set<Id>  gmIDs = new Set<Id>();
+        for(GroupMember gm : gps[0].GroupMembers){
+            gmIDs.add(gm.UserOrGroupId);
+        }
+        if(gmIDs.isEmpty()){
+            throw new NoUserOrGroupInGroupException('No User or Group Exist In '+publicGroupName);
+        }
+        List<User> uLst = [SELECT Email FROM User WHERE Id IN :gmIDs];
+        if(uLst.isEmpty()){
+            throw new NoUserInGroupException('No User Exist In '+publicGroupName);
+        }
+        Set<String> emails = new Set<String>();
+        for(User currentUser : uLst){
+            if(String.isNotBlank(currentUser.email)){
+                emails.add(currentUser.email);
+            }
+        }
+        if(emails.isEmpty()){
+            throw new NoEmailException('No such email present');
+        }
+        return new List<string>(emails);
+    }
+    public void sendMail() {
+        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+        mail.setToAddresses(collectEmailFromPublicGroup('public group name'));
+        mail.setSubject('This is the subject');
+        mail.setPlainTextBody('This is the body.');
+        Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
+    }
+    //get all CRUD able fields from object id 
+    
+    public class NullValuePassingException extends Exception {}
+    public class InvalidIdException extends Exception {}
+    public List<string> fields(Id recId){
+        if(recId == null){
+            throw new NullValuePassingException('pass a id value instead of null');
+        }else if(recId.getSobjectType() == null){
+            throw new InvalidIdException('No Such Object With Id '+recId+' Presnt');
+        }
+        List<String> allFields = new List<String>();
+        allFields.addAll(recId.getSObjectType().getDescribe().Fields.getMap().keySet());
+        return allFields;
+    }
+    //display account with number of contacts
+    
+    public List<AccountWrapper> accWrappers{get;private set;}
+    public List<AccountWrapper> getAccountWithContactInfo(){
+        accWrappers.clear();
+        for(Account acc : [select id,name,(select id FROM contacts) FROM Account WHERE id not in (select accountId FROM Contact WHERE accountId != null) ]){
+            accWrappers.add(new AccountWrapper(acc,acc.contacts.size()));
+        }
+        return accWrappers;
+    }
+    public class AccountWrapper{
+        public Integer count {get;set;}
+        public Account acc {get;set;}
+        public AccountWrapper(Account acc,Integer count){
+            this.count = count;
+            this.acc = acc;
+        }
+    }
+    /*
+<apex:PageBlockTable value="{!accWrappers}" var="accWrapper">
+<apex:column value="{!accWrapper.acc.name}" />
+<apex:column value="{!accWrapper.count}" />
+</apex:pageblocktable>*/
+}
+
+<apex:page controller="BS_MultiSelectPickList_CC" showHeader="false">
+    <apex:outputPanel id="abcd">
+        <apex:form>
+            <apex:panelGrid columns="3" >
+                <apex:selectList id="sel1" value="{!leftSelected}" multiselect="true" style="width:100px" size="5">
+                    <apex:selectOptions value="{!DeselectedValues}" />
+                </apex:selectList>
+                
+                <apex:panelGroup>
+                    <br/>
+                    <apex:image styleClass="picklistArrowRight" value="/s.gif">
+                        <apex:actionSupport event="onclick" action="{!selected}" reRender="abcd"/>
+                    </apex:image>
+                    <br/><br/>
+                    <apex:image styleClass="picklistArrowLeft" value="/s.gif">
+                        <apex:actionSupport event="onclick" action="{!deselected}" reRender="abcd"/>
+                    </apex:image>
+                </apex:panelGroup>
+                <apex:selectList id="sel2" value="{!rightSelected}" multiselect="true" style="width:100px" size="5">
+                    <apex:selectOptions value="{!SelectedValues}" />
+                </apex:selectList>
+            </apex:panelGrid>
+        </apex:form>
+    </apex:outputPanel>
+</apex:page>
+
+//Custom Email Template
+
+<apex:component controller="AccountEmailTemplate" access="global">
+    <apex:attribute name="accountId" type="string" description="holds account's id value" assignTo="{!accId}"/>
+    <table border = "2" cellspacing = "5">
+        <tr>
+            <td>Name</td>    
+            <td>Email</td>    
+            <td>Phone</td>                
+        </tr>
+        <apex:repeat value="{!contacts}" var="contact">
+            <tr>
+                <td>{!contact.firstname}+'  '+{!contact.lastname}</td>
+                <td>{!contact.email}</td>
+                <td>{!contact.phone}</td>
+            </tr>
+        </apex:repeat>   
+    </table>
+</apex:component>
+
+public class AccountEmailTemplate {
+    public String accId{get;set;}
+    public List<contact> getContacts(){
+        return [select firstname,lastname,email,phone FROM Contact WHERE accountId=:accId];
+    }
+}
+
+visualforce template :
+
+<messaging:emailTemplate subject="List Of Contacts" recipientType="User" relatedToType="Account">
+    <messaging:plainTextEmailBody >
+         Hi,<br/>
+            Below is the list of contacts for account {!relatedTo.Name}.<br/><br/>
+            <c:contactLst accountId="{!relatedTo.Id}" /><br/><br/>
+            <b>Regards,</b><br/>
+            {!recipient.firstname}
+    </messaging:plainTextEmailBody>
+</messaging:emailTemplate>
+
+//close popup on completeion of click button and refresh parent window
+
+<apex:commandbutton name="update" oncomplete="refreshpage();" action="{!updateRecord}" />
+
+<script type="text/javscript">
+	function refreshpage() {
+		window.opener.location.href="/{!$CurrentPage.parameters.id}";
+		window.top.close();
+	}
+</script>
+
+
+JSON to APex
+
+{
+   "firstName":"Sumit",
+   "lastName":"Samal",
+   "isAlive":true,
+   "age":28,
+   "address":{
+      "streetAddress":"25 2nd Street",
+      "city":"New York",
+      "state":"NY",
+      "postalCode":"10021-3100"
+   },
+   "phoneNumbers":[
+      {
+         "type":"home",
+         "number":"212 888-1234"
+      },
+      {
+         "type":"office",
+         "number":"646 989-4567"
+      },
+      {
+         "type":"mobile",
+         "number":"123 456-7890"
+      }
+   ],
+   "children":[
+ 
+   ],
+   "spouse":null
+}
+
+public class BS_JSONFormatter {
+	
+	public String firstName{get;set;}
+	public String lastName{get;set;}
+	public Boolean isAlive{get;set;}
+	public Integer age{get;set;}
+	public Address address{get;set;}
+	public List<phoneNumber> phoneNumbers{get;set;}
+	public List<children> children{get;set;}
+	public string spouse{get;set;}
+
+	Public class address {
+		public string streetAddress{get;set;}
+		public string city{get;set;}
+		public string state{get;set;}
+		public string postalCode{get;set;}
+		public address(string streetAddress,string city,string state,string postalCode){
+			this.streetAddress = streetAddress;
+			this.city = city;
+			this.state = state;
+			this.postalCode = postalCode;
+		}
+	}
+
+	public class phoneNumber {
+		public string type{get;set;}
+		public string number{get;set;}
+		public phoneNumber(string type,string number){
+			this.type = type;
+			this.number = number;
+		}
+	}
+
+	pulbic class children {
+
+	}
+}
+
+
+string firstname = 'Sumit';
+string lastName = 'Samal';
+Boolean isAlive = true;
+Integer age = 28;
+Sobject address = new Sobject();
+address.put('streetAddress','25 2nd Street');
+address.put('city','New York');
+address.put('state','NY');
+address.put('postalCode','10021-3100');
+
+List<Sobject> phoneNumbers = new List<sobject>();
+Sobject so1 = new Sobject();
+so1.put('type','home');
+so1.put('number','212 888-1234');
+Sobject so2 = new Sobject();
+so2.put('type','office');
+so2.put('number','646 989-4567');
+Sobject so3 = new Sobject();
+so3.put('type','mobile');
+so3.put('number','123 456-7890');
+
+BS_JSONFormatter jf = new BS_JSONFormatter(firstname,lastName,isAlive,age,address,phoneNumbers);
+
+//System.SObjectException: Invalid field streetAddress for Account
+
+
+//check trigger code Trigger.isExecuting
+
+//create a popup in visualforce page 
+
+<apex:outputpanel id="TestPopup">
+    <apex:outputpanel layout="block" rendered="{!DisplayPopUp}" styleclass="popupBackground">
+        <apex:outputpanel layout="block" rendered="{!DisplayPopUp}" styleclass="customPopup">
+            Hi, Sumit 
+            <apex:commandbutton action="{!ClosePopup}" rerender="TestPopup" value="Close Popup"/>
+    	</apex:outputpanel>
+	</apex:outputpanel>
+</apex:outputpanel>
+
+<style type="text/css">
+    .customPopup{
+        background-color: white;
+        border-width: 2px;
+        border-style: solid;
+        z-index: 9999;
+        left: 50%;
+        padding:10px;
+        position: absolute;        
+        width: 300px;
+        margin-left: -250px;
+        top:100px;
+    }
+    .popupBackground{
+        background-color:black;
+        opacity: 0.20;
+        filter: alpha(opacity = 20);
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 9998;
+    }
+</style>
+
+Action Function :
+
+public string total{get;set;}
+public PageReference increaseTotal(){
+	total++;
+	return null;
+}
+<apex:commandbutton action="{!increaseTotal}" reRendered="idResult">
+<apex:ouputpanel id="idResult">
+	<apex:outputtext label="No. of Clicked:" value="{!total}">
+</apex:ouputpanel>
+
+custom controller : custom logic,system mode,control security.
+
+extension controller : leverage standard functionality.run in user mode respect sharing rule.
+standrad  controller : leverage standard functionality.run in user mode respect sharing rule.
+
+<apex:relatedlist list="reltionshipfieldapiname">
+
+apex:message  : display  message for speciifc component.
+apex:messages : display message for all component.
+
+apex:pagemessage  : display custom message in speciifc component.
+apex:pagemessages : display custom message in visulaforce page.
+
+
+function disableRgtClk(event) {
+	if(event && event.button && event.button == 2){
+
+	}
+}
+
+
+//show saving... on button click saved on completion
+
+<apex:actionstatus id="btnstatus">
+    <apex:facet name="stop">                  
+        <apex:commandbutton action="{!Save}" disabled="false" rerender="btnstatus" status="btnstatus" value="Save"/>
+    </apex:facet>
+    <apex:facet name="start">
+       <apex:commandbutton disabled="true" status="btnstatus" value="Saving..."/>
+    </apex:facet>
+</apex:actionstatus>
+
+//show an field on slection of speciifc value of picklist
+
+<apex:pageBlock>
+    <apex:pageBlockSection columns="4" >
+        <apex:pageBlockSectionItem >
+            <apex:inputField value="{!Account.type}">
+                <apex:actionSupport event="onchange" rerender="panelone,paneltwo"/>
+            </apex:inputField>
+        </apex:pageBlockSectionItem>
+        <apex:outputPanel id="panelone">
+            <apex:pageBlockSectionItem >
+                <apex:inputField value="{!Account.accountnumber}" rendered="{!Account.type == 'Prospect'}"/>
+            </apex:pageBlockSectionItem>
+        </apex:outputPanel>
+    </apex:pageBlockSection>
+</apex:pageBlock>
+
+
+//clone record
+
+{!REQUIRESCRIPT("/soap/ajax/22.0/connection.js")} 
+window.parent.location.href="/{!objectapiname.Id}/e?&clone=1&retURL=/{!objectapiname.Id}";
+
+
+pass parameter to another visual force page.
+
+1. same controller.
+2. use param with ouputlink
+
+<apex:outputLink value="/apex/vfpagename">Click Here
+	<apex:param name="firstname" value="sumit "/>
+	<apex:param name="lastname" value=" panda"/>
+</apex:outputLink>
+
+"{!CurrentPage.parameters.firstname}" + "{!CurrentPage.parameters.lastname}"
+
+
+custom label : 
+DynamicCustomLabel
+My Name is {0} {1}
+<apex:outputtext value="{!$Label.BS_DynamicCustomLabel}">
+    <apex:param value="{!FirstName}"/>
+    <apex:param value="{!LastName}"/>
+</apex:outputtext>
+
+
+
+avoid code execution during test .
+
+if(!Test.isRunningTest()){}
+
+
+//check visulapage assignment 
+List<User> activeUsers = [SELECT Id, Parent.Name, Parent.Profile.Name, Parent.Profile.Id FROM SetupEntityAccess
+                                   WHERE Parent.Profile.Id = :UserInfo.getProfileId() AND SetupEntityId IN
+                                   (SELECT Id FROM ApexPage WHERE Name = :your_VF_page AND NamespacePrefix = :your_namespace)];
+
+
+//active users in public group
+String pbGroupName = 'Support Group';
+List<User> activeUsers = [SELECT id FROM User WHERE Id IN (SELECT UserorGroupId FROM GroupMember WHERE Group.Name =: pbGroupName) AND isActive = true];
+
+//active users in queue
+String pbGroupName = 'Support Queue';
+List<User> activeUsers = [SELECT Id FROM User WHERE Id IN (SELECT UserorGroupId FROM GroupMember WHERE  Group.Type = 'Queue' AND Group.Name =: pbGroupName) AND isActive = true];
+
+//active users in a role
+String roleName = 'SVP Manager';
+List<User> activeUsers = [SELECT Id FROM User WHERE UserRole.Name =: roleName AND isActive = true];
+
+toLabel() : convert in user language.
+
+attachment size check
+
+if(attach.Body.size() > 3145728) {
+    attach.addError('File size cannot be greater than 3 MB');
+} 
+
+//hide date format
+.dateFormat{
+	visibility:hidden;
+}
+
+//validation email
+
+String email = 'testmail@gmail.com'; 
+if(!Pattern.matches('[a-zA-Z0-9._-]+@[a-zA-Z]+.[a-zA-Z]{2,4}', email)){                        
+    //Your error message
+}
+
+//
+<apex:selectCheckboxes value="{!countries}">
+    <apex:actionSupport event="onchange" action="{!null}" reRender="out" />
+    <apex:selectOptions value="{!CountryList}"/>
+</apex:selectCheckboxes><br/>
+
+<apex:outputPanel id="out">
+    <apex:actionstatus id="status" startText="Loading...">
+        <apex:facet name="stop">
+            <apex:outputPanel>
+                <p>Selected Countries:</p>
+                <apex:dataList value="{!countries}" var="c">{!c}</apex:dataList>
+            </apex:outputPanel>
+        </apex:facet>
+    </apex:actionstatus>
+</apex:outputPanel>
+
+<apex:inputField value="{!opportunity.StageName}">
+	<apex:actionSupport event="onchange" action="{!null}" reRender="opportunities" />
+</apex:inputField>
+
+<apex:outputPanel id="opportunities">
+    <apex:actionstatus id="status" startText="Loading...">
+        <apex:facet name="stop">
+            <apex:outputPanel>
+                <apex:PageBlockTable value="{!opportunities}" var="opportunity">
+                	<apex:column value="{!opportunity.name}" />
+                	<apex:column value="{!opportunity.StageName}" />
+                </apex:PageBlockTable>
+            </apex:outputPanel>
+        </apex:facet>
+    </apex:actionstatus>
+</apex:outputPanel>
